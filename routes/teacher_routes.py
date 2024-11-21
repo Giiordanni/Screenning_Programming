@@ -78,7 +78,7 @@ def update_user():
         return jsonify({"error": "Nenhum campo enviado para atualização"}), 400
 
     try:
-        update_teacher_controller(user_id["id"], data)
+        update_teacher_controller(user_id, data)
         return jsonify({"message": "Usuário atualizado"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -87,8 +87,7 @@ def update_user():
 @jwt_required()
 def delete_users(user_id):
     current_user_id = get_jwt_identity()
-    current_user_id = current_user_id['id']
-    response, status_code = delete_teacher_controller(current_user_id,user_id)
+    response, status_code = delete_teacher_controller(current_user_id, user_id)
     return jsonify(response), status_code
 
 @teacher_app.route('/alterarNome', methods=['POST'])
@@ -146,7 +145,7 @@ def upload_image_teacher_route():
         if file_extension not in allowed_extensions:
             raise ValueError(f"Unsupported file type. Allowed types are: {', '.join(allowed_extensions)}.")
 
-        teacher_id = get_jwt_identity()["id"]
+        teacher_id = get_jwt_identity()
         destination_blob_name = f"teachers/{teacher_id}/profile_image.jpg"
 
         file_stream = io.BytesIO(file.read())
@@ -163,7 +162,7 @@ def upload_image_teacher_route():
 @teacher_app.route('/api/teacher/groups', methods=['GET'])
 @jwt_required()
 def get_groups_from_teacher_route():
-    user_id = get_jwt_identity()["id"]
+    user_id = get_jwt_identity()
     response = get_groups_from_teacher_controller(user_id)
     return jsonify(response)
 
