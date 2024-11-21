@@ -237,7 +237,7 @@ class User:
                 email = cursor.fetchone()
                 if email:
                     return email
-            cursor.execute(f"SELECT emailTeacher AS email FROM teacher WHERE id = %s", (user_id,))
+            cursor.execute(f"SELECT emailTeacher AS email FROM professor WHERE id = %s", (user_id,))
             email = cursor.fetchone()
             if email:
                 return email

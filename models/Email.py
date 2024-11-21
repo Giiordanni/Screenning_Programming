@@ -3,12 +3,9 @@ import smtplib
 from email.message import EmailMessage
 from dotenv import load_dotenv
 import random
-import redis
+from db.redis import redis_client
 
 load_dotenv()
-
-def redis_client():
-    return redis.StrictRedis.from_url(os.getenv("REDIS_CLIENT"), decode_responses=True)
 
 def generateCode():
     return str(random.randint(100000, 900000))
@@ -42,10 +39,15 @@ def sendEmail(subject, recipient, body):
 
 def send_verification_code(email):
     code = generateCode()
+    redis = redis_client()
 
     subject = "Código de verificação"
-
-    redis_client().setex(f"verification_code:{email}", 300, code)
+    
+    ditc_code = {
+        "code": code
+    }
+    redis.hset(f"verification_code:{email}", mapping=ditc_code)
+    redis.expire(f"verification_code:{email}", 300)
 
     with open("templates/sendCodeVerification.html", 'r', encoding='utf-8') as file:
         html = file.read()
@@ -55,14 +57,14 @@ def send_verification_code(email):
 
 def verify_code(email, code):
     
-    stored_code = redis_client().get(f"verification_code:{email}")
-
+    stored_code = redis_client().hgetall(f"verification_code:{email}")
+    
     if stored_code is None:
         print("Nenhum código encontrado no Redis para este email.")
         return False
     
-    return stored_code.strip() == code.strip()
+    return stored_code.get("code", "").strip() == code.strip()
         
 def user_data(email):
-    return redis_client().get(f"user_data:{email}")
+    return redis_client().hgetall(f"user_data:{email}")
 

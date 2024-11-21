@@ -10,7 +10,7 @@ def get_questions_by_level_controller(student_level, id_activity):
     
     question_params = Questions.get_question_params(connection)
     
-    response = Questions.get_questions_by_level_service(connection, student_level, question_params, id_activity)
+    response = Questions.get_questions_by_level_service(connection, student_level, id_activity)
 
     return response, 200
 
@@ -41,7 +41,10 @@ def check_answer_controller(question_id, student_answer):
     result = Questions.get_correct_answer(connection, question_id)
     if result:
         correct_aswer = result[0]
-        return student_answer == correct_aswer
+        if student_answer == correct_aswer:
+            return True, 1
+        else:
+            return False, 0
     return False
 
 def get_question_params_controller(question_id):

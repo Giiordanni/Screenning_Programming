@@ -2,24 +2,28 @@ from models.Statistic import Statistic
 from db.bd_mysql import db_connection
 
 
-def calculate_percentage(correct_answers, total_questions):
+def calculate_overall_percentagem(correct_answers, total_questions):
     if total_questions > 0:
-        return (correct_answers / total_questions) * 100
+        result = (correct_answers / total_questions) * 100
+        return result
     return 0
 
+def calculate_percentage_by_skill(skill_stats):
+    skill_percentage = {
+        skill: (stats["correct_answers"] / stats["total_questions"]) * 100
+        for skill, stats in skill_stats.items()
+    }
+    return skill_percentage
 
-def create_statistc_controller(data):
-    id_student = data.get('id_student')
-    id_activity = data.get('id_activity')
-    id_question = data.get('id_question')
-    answer_correct = data.get('answer_correct')
 
+
+
+def create_statistc_controller(id_student, id_activity, id_question, answer_correct):
     connection = db_connection()
     try:
         return Statistic.create_statistc_service(connection, id_student, id_activity,id_question, answer_correct)
     finally:
         connection.close()
-
 
 
 def group_answer_by_id_student_controller(id_student,id_activity):
@@ -29,20 +33,42 @@ def group_answer_by_id_student_controller(id_student,id_activity):
     finally:
         connection.close()
     
-    count_correct_answer = sum(1 for question in questions if question[1] == 1)
-    total_questions = len(questions)
-
-    if total_questions == 0:
+    if not questions:
         return { "message": "Não há respostas para essa atividade" }
+    
+    skill_stats = {}
 
-    percentage = calculate_percentage(count_correct_answer, total_questions)
+    for question in questions:
+        skill = question[2]
+        correct = question[1] == 1
+
+        if skill not in skill_stats:
+            skill_stats[skill] = {
+                'total_questions': 0,
+                'correct_answers': 0
+            }
+
+        skill_stats[skill]['total_questions'] += 1
+        if correct:
+            skill_stats[skill]['correct_answers'] += 1
+    
+
+    total_questions = sum(stats["total_questions"] for stats in skill_stats.values())
+    correct_answers = sum(stats["correct_answers"] for stats in skill_stats.values())
+    skill_percentage = calculate_percentage_by_skill(skill_stats)
+    percentage_overall = calculate_overall_percentagem(correct_answers, total_questions)
+
+    percentage_overall = round(percentage_overall, 2)
+    skill_percentage = {skill: round(percentage, 2) for skill, percentage in skill_percentage.items()}
 
     return {
+        "name_student": questions[0][3],
         "total_questions": total_questions,
-        "correct_answers": count_correct_answer,
-        "percentage": percentage
+        "correct_answers": correct_answers,
+        "percentage_overall": percentage_overall,
+        "skill_stats": skill_stats,
+        "skill_percentage": skill_percentage
     }
-
 
 def get_all_statistics_by_activity(id_activity):
     connection = db_connection()
@@ -81,13 +107,10 @@ def get_all_statistics_by_activity(id_activity):
         correct_answers = stats['correct_answers']
         
         if total_questions > 0:
-            percentage = calculate_percentage(correct_answers, total_questions)
+            percentage = calculate_overall_percentagem(correct_answers, total_questions)
         else:
             percentage = 0
         
         grouped_statistics[student_id]['percentage'] = percentage
     
     return grouped_statistics
-
-
-

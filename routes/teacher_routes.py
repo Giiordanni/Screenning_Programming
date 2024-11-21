@@ -5,9 +5,10 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 from controllers.teacher_controller import *
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-from models.Email import send_verification_code, redis_client
+from models.Email import send_verification_code
 from middleware.global_middleware import verify_email_registered
 from db.bd_mysql import db_connection
+from db.redis import redis_client
 import json
 
 from models.Teacher import Teacher
@@ -17,6 +18,7 @@ teacher_app = Blueprint('teacher_app', __name__)
 @teacher_app.route('/api/teacher', methods=['POST'])
 def add_user_router():
     connection = db_connection()
+    redis = redis_client()
     data = request.get_json()
 
     name = data.get('nameTeacher').lower()
@@ -64,10 +66,10 @@ def add_user_router():
 
     send_verification_code(email)
 
-    redis_client().setex(f"user_data:{email}", 600, json.dumps(data))
+    redis.hset(f"user_data:{email}", mapping=data)
+    redis.expire(f"user_data:{email}", 600)
 
     return jsonify({"message": "Código de verificação enviado para o email"}), 200
-
 
 @teacher_app.route("/api/teacher", methods=['PATCH'])
 @jwt_required()

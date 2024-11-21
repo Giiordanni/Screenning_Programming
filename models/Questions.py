@@ -6,7 +6,7 @@ import mysql.connector
 
 class Questions:
     @staticmethod
-    def get_questions_by_level_service(connection, student_level, question_params, id_activity):
+    def get_questions_by_level_service(connection, student_level, id_activity):
         try:
             # Verifica se a conexão está ativa
             if connection.is_connected():
