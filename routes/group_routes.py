@@ -4,7 +4,7 @@ from controllers.group_controller import *
 
 
 from flask_jwt_extended import get_jwt_identity
-from flask_jwt_extended import jwt_required, get_jwt
+from flask_jwt_extended import jwt_required
 
 group_app = Blueprint("group_app", __name__)
 
@@ -14,7 +14,7 @@ def create_group_route():
     data = request.get_json()
     id_teacher = get_jwt_identity()
 
-    response, status_code = create_group_controller(id_teacher,data)
+    response, status_code = create_group_controller(id_teacher, data)
     return jsonify(response), status_code
 
 @group_app.route("/api/group/student/<groupId>", methods=["PUT"])
@@ -60,8 +60,7 @@ def delete_group_route(groupId):
 @group_app.route("/api/group/teacher", methods=["GET"])
 @jwt_required()
 def get_groups_from_teacher_route():
-    claims = get_jwt()
-    teacherId = claims.get("user_id")
+    teacherId = get_jwt_identity()
     if not teacherId:
         return {"message": "Invalid token data"}, 400
     response, status_code = get_group_by_teacher_id_controller(teacherId)
@@ -72,7 +71,7 @@ def get_groups_from_teacher_route():
 def update_student_group_route(grupoId):
     data = request.get_json()
     teacher_id = get_jwt_identity()
-    response, status_code = update_group_controller(teacher_id,grupoId,data)
+    response, status_code = update_group_controller(teacher_id, grupoId, data)
     return jsonify(response), status_code
 
 @group_app.route('/api/group/upload_image/<group_id>', methods=['PATCH'])
