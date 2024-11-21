@@ -62,9 +62,10 @@ def add_user_router():
     hashed_password = hashpw(password.encode('utf-8'), gensalt())
 
     data['passwordStudent'] = hashed_password.decode('utf-8')
-        
-    send_verification_code(email)
+    data.pop('confirm_password_Student')
 
+    send_verification_code(email)
+    
     redis.hset(f"user_data:{email}", mapping=data)
     redis.expire(f"user_data:{email}", 600)
 

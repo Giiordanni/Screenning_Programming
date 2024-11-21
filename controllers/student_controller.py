@@ -14,7 +14,7 @@ def add_student_controller(data):
 
         if not isinstance(data, dict):
             return {"message": "Dados não são json"}, 500
-
+        
         name = data.get('nameStudent').lower()
         email = data.get('emailStudent').lower()
         birth = data.get('birthStudent')
