@@ -39,6 +39,7 @@ class Group:
                     aluno e ON sg.id_aluno = e.id
                 WHERE 
                     g.id_grupo = %s
+                ORDER BY e.nameStudent, e.id
             """
             cursor.execute(query, (id_group,))
             results = cursor.fetchall()
