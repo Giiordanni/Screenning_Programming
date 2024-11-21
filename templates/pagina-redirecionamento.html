@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificando...</title>
+    <style>
+        body{
+            display:flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            min-height: 100vh;
+            transform: scale(3);
+            overflow: hidden;
+        }
+        .verificando{
+            animation: rotacao 1s infinite;
+            height: 50px;
+            width: 50px;
+            border-radius:50%;
+            border: 6px solid #e5e5e5;
+            border-top-color: #0050b8;
+        }
+        @keyframes rotacao {
+            to{
+                transform:rotate(1turn)
+            }
+        }
+    </style>
+    <script src="js/redirect.js"></script>
+</head>
+<body>
+    <div class="verificando"></div>
+</body>
+</html>
