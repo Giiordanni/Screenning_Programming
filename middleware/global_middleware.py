@@ -48,6 +48,9 @@ def verify_student_is_in_group(connection, user_email, group_id):
 def create_token(user, user_type):
     access_token = create_access_token(
         identity=str(user['id']), 
-        additional_claims={'type': user_type},
+        additional_claims={
+            'type': user_type,
+            'user_id': user['id']
+        },
         expires_delta=timedelta(hours=24))
     return access_token
