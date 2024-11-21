@@ -57,7 +57,8 @@ def add_user_router():
 
     hashed_password = hashpw(password.encode('utf-8'), gensalt())
 
-    data['passwordTeacher'] = hashed_password.decode('utf-8')  
+    data['passwordTeacher'] = hashed_password.decode('utf-8')
+    data.pop('confirm_password_Teacher')  
 
     verifyEmail = verify_email_registered(connection, email)
     if verifyEmail:

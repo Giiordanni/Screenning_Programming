@@ -67,4 +67,3 @@ def verify_code(email, code):
         
 def user_data(email):
     return redis_client().hgetall(f"user_data:{email}")
-

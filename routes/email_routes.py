@@ -41,9 +41,9 @@ def verification_code(email):
         
 
         if email.split("@")[-1] == "aluno.uepb.edu.br":
-            result = add_student_controller(data)
+            result = add_student_controller(dataUser)
         else: 
-            result = add_teacher_controller(data)
+            result = add_teacher_controller(dataUser)
 
         if len(result) == 2:
             response,status_code = result
