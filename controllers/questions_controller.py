@@ -10,7 +10,7 @@ def get_questions_by_level_controller(student_level, id_activity):
     
     question_params = Questions.get_question_params(connection)
     
-    response = Questions.get_questions_by_level_service(connection, student_level, question_params,id_activity)
+    response = Questions.get_questions_by_level_service(connection, student_level, question_params, id_activity)
 
     return response, 200
 

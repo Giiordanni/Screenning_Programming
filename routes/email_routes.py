@@ -119,7 +119,7 @@ def group_invite():
         return jsonify({'error': 'Erro ao conectar com o banco de dados'}), 500
     try:
         data = request.get_json()
-        teacherId = get_jwt_identity()['id']
+        teacherId = get_jwt_identity()
         groupName = data['groupName']
         groupId = data['groupId']
         recipient = data['recipient']
@@ -160,7 +160,7 @@ def verify_invite():
             return jsonify({'error': 'Erro ao conectar com o banco de dados'}), 500
         
         user = get_jwt_identity()
-        userEmail = User.get_email_by_id(user["id"])
+        userEmail = User.get_email_by_id(user)
         token = Token.get_token_by_user_email_service
         if token["email"]!= userEmail:
             return jsonify({"Emails incompativeis"})

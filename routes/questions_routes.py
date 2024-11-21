@@ -15,8 +15,9 @@ def get_questions_by_level_routes():
     id_activity = request.json.get("id_activity")
 
     if not user_id:
-        return jsonify({"error": "Parâmetro 'level' é obrigatório."}), 400
-    student_level = get_student_initial_level(user_id["id"])
+        return jsonify({"error": "Parâmetro 'user_id' é obrigatório."}), 400
+    
+    student_level = get_student_initial_level(user_id)
     response, status_code = get_questions_by_level_controller(student_level, id_activity)
     return jsonify(response), status_code
 
@@ -24,7 +25,6 @@ def get_questions_by_level_routes():
 @jwt_required()
 def calculate_student_level_routes():
     user_id = get_jwt_identity()
-    user_id = user_id["id"]
     if not user_id:
         return jsonify({"error": "Parâmetro 'user_id' é obrigatório."}), 400
     
