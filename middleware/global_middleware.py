@@ -5,6 +5,8 @@ from db.bd_mysql import db_connection
 from models.Student import Student
 from models.Users import User
 from models.Group import Group
+from datetime import timedelta
+from flask_jwt_extended import create_access_token
 
 @staticmethod
 def verify_email_registered(connection, email):
@@ -42,3 +44,10 @@ def verify_student_is_in_group(connection, user_email, group_id):
     if group['group_id'] != group_id:
         return abort(404, description="Grupos diferentes")
     return user
+
+def create_token(user, user_type):
+    access_token = create_access_token(
+        identity=str(user['id']), 
+        additional_claims={'type': user_type},
+        expires_delta=timedelta(hours=24))
+    return access_token

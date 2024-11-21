@@ -6,7 +6,8 @@ from db.firebase import *
 from middleware.global_middleware import (
     verify_email_teacher_registered,
     verify_id_exists
-    ,verify_email_registered)
+    ,verify_email_registered,
+    create_token)
 
 def add_teacher_controller(data):
     connection = db_connection()
@@ -28,7 +29,8 @@ def add_teacher_controller(data):
         if inserted_id is not None:
             try:
                 user = Teacher.get_teacher_by_id_service(connection, inserted_id)
-                access_token = create_access_token(identity={'id': str(user['id']), 'type': 'teacher'})
+                access_token = create_token(user, 'teacher')
+                print(access_token)
             except Exception as e:
                 print(f"Erro ao criar token ou buscar usuário: {e}")
                 return {"message": "Erro ao criar usuário, mas usuário foi salvo"}, 500

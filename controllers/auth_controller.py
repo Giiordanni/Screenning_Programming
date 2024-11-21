@@ -3,7 +3,8 @@ from flask import jsonify
 from flask_jwt_extended import create_access_token, get_jwt_identity
 from models.Teacher import Teacher
 from models.Student import Student
-from middleware.global_middleware import verify_email_registered
+from middleware.global_middleware import verify_email_registered, create_token
+
 
 from db.bd_mysql import db_connection
 
@@ -32,7 +33,7 @@ def login_controller(data):
 
         
         if user and bcrypt.checkpw(password.encode('utf-8'), user['password'].encode('utf-8')):
-            access_token = create_access_token(identity={'id': str(user['id']), 'type': user_type})
+            access_token = create_token(user, user_type)
             return {"access_token": access_token}, 200
 
         return {"message": "Invalid email or password"}, 401

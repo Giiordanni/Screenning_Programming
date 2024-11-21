@@ -4,7 +4,9 @@ from db.bd_mysql import db_connection
 from werkzeug.utils import secure_filename
 from middleware.global_middleware import (
     verify_id_exists,
-    verify_email_student_registered)
+    verify_email_student_registered,
+    create_token)
+
 
 
 def add_student_controller(data):
@@ -32,7 +34,7 @@ def add_student_controller(data):
             if inserted_id is not None:
                 try:
                     user = Student.get_student_by_id_service(connection, inserted_id)
-                    access_token = create_access_token(identity={'id': str(user['id']), 'type': 'student'})
+                    access_token = create_token(user, 'student')
                 except Exception as e:
                     print(f"Erro ao criar token ou buscar usuário: {e}")
                     return {"message": "Erro ao criar usuário, mas usuário foi salvo"}, 500
