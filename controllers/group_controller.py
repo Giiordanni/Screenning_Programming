@@ -16,6 +16,10 @@ def create_group_controller(teacherId, data):
     name = data.get("title").lower()
     period = data.get("period")
 
+    period_verification = period.split(".")[1]
+    if period_verification > 2 and period_verification < 1:
+        return {"message": "Período inválido"}, 400
+
     connection = db_connection()
     if connection:
 
