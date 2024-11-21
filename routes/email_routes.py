@@ -1,7 +1,7 @@
 from email.headerregistry import Group
 import os
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import get_jwt_identity, jwt_required
+from flask_jwt_extended import get_jwt_identity, jwt_required, get_jwt
 import jwt
 from controllers.student_controller import get_id_by_email_controller
 from db.bd_mysql import db_connection
@@ -16,6 +16,7 @@ from controllers.student_controller import add_student_controller
 from controllers.teacher_controller import add_teacher_controller
 import json
 
+from db.redis import redis_client
 from models.Token import Token
 from models.Users import User
 
@@ -30,7 +31,6 @@ def verification_code(email):
         if not code:
             return jsonify({'error': 'Código não fornecido'}), 400
         
-
         if not verify_code(email, code):
             return ({'message': 'Código inválido'}), 400
         
@@ -39,9 +39,7 @@ def verification_code(email):
         if not dataUser:
             return jsonify({"message": "Os dados do usuário expiraram ou são inválidos."}), 400
         
-        #converter de volta para um dicionario
-        data = json.loads(dataUser)
-        print(email.split("@")[-1])
+
         if email.split("@")[-1] == "aluno.uepb.edu.br":
             result = add_student_controller(data)
         else: 
@@ -124,7 +122,7 @@ def group_invite():
         groupId = data['groupId']
         recipient = data['recipient']
                 
-        token, token_id, status_code = create_token_controller(recipient, 'student', int(groupId),'invite')
+        token, token_id, status_code = create_token_controller(recipient, 'student', int(groupId), 'invite')
         if status_code != 201:
             return jsonify({'error': token_id}), status_code
         
@@ -156,21 +154,17 @@ def group_invite():
 def verify_invite():
     try:
         connection = db_connection()
-        if not connection:
-            return jsonify({'error': 'Erro ao conectar com o banco de dados'}), 500
+        redis = redis_client()
+        user = get_jwt()
+        userEmail = User.get_email_by_id(connection, user["id"], user["type"])
+        userEmail = str(userEmail[0])
         
-        user = get_jwt_identity()
-        userEmail = User.get_email_by_id(user)
-        token = Token.get_token_by_user_email_service
-        if token["email"]!= userEmail:
+        token = Token.get_token_by_user_email_service(redis, userEmail)
+        if token["email"] != userEmail:
             return jsonify({"Emails incompativeis"})
         return jsonify({token})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-    finally:
-        if connection:
-            connection.close()
-
 
 
 # # # ATALHO PARA COMENTAR == CTRL + K -> CTRL + C

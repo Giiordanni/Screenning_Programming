@@ -9,6 +9,7 @@ def create_activity_controller(data):
     id_content = data.get("id_content")
     description = data.get("description")
     deadline = data.get("deadline")
+    quantity_questios = data.get("number_questions") 
 
     connection = db_connection()
 

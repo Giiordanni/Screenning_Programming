@@ -8,16 +8,19 @@ from db.firebase import delete_file_from_upload, handle_image_upload, upload_ima
 from models.Student import Student
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-from models.Email import send_verification_code, redis_client
+from models.Email import send_verification_code
 from middleware.global_middleware import verify_email_registered
 from db.bd_mysql import db_connection
+from db.redis import redis_client
 import json
+
 
 user_app = Blueprint('user_app', __name__)
 
 @user_app.route('/api/student', methods=['POST'])
 def add_user_router():
     connection = db_connection()
+    redis = redis_client()
     data = request.get_json()
 
     name = data.get('nameStudent').lower()
@@ -62,7 +65,8 @@ def add_user_router():
         
     send_verification_code(email)
 
-    redis_client().setex(f"user_data:{email}", 600, json.dumps(data))
+    redis.hset(f"user_data:{email}", mapping=data)
+    redis.expire(f"user_data:{email}", 600)
 
     return jsonify({"message": "Código de verificação enviado para o email"}), 200
 

@@ -23,7 +23,13 @@ class Statistic:
     def group_answer_by_id_student_service(connection, id_student, id_activity):
         try:
             if connection.is_connected():
-                query = "SELECT id_question, answer_correct FROM statistic WHERE id_student = %s AND id_activity = %s"
+                query = """SELECT s.id_question, s.         
+                            answer_correct, q.skill_question, a.nameStudent
+                            FROM statistic s
+                            JOIN questions q ON s.id_question = q.id_questions
+                            JOIN aluno a ON s.id_student = a.id
+                            WHERE s.id_student = %s AND s.id_activity = %s
+                            """
                 cursor = connection.cursor()
                 cursor.execute(query, (id_student,id_activity,))
                 result = cursor.fetchall()
