@@ -1,6 +1,3 @@
-import base64
-import bcrypt
-from flask import request
 from db.firebase import *
 from models.Group import Group
 from db.bd_mysql import db_connection
@@ -12,7 +9,7 @@ from db.bd_mysql import db_connection
 
 def create_group_controller(teacherId, data):
 
-    id_teacher = teacherId["id"]
+    id_teacher = teacherId
     name = data.get("title").lower()
     period = data.get("period")
 
@@ -41,7 +38,7 @@ def delete_student_from_group_controller(current_user_id,group_id, student_id):
     if not connection:
         return {"message": "Falha ao conectar com o banco de dados!"}, 500
     try:
-        if int(current_user_id["id"]) !=Group.get_teacher_id_from_group_service(connection, group_id): 
+        if int(current_user_id) !=Group.get_teacher_id_from_group_service(connection, group_id): 
             return {"message": "Sem permissão para deletar"}, 400
         Group.delete_student_from_group_service(connection, group_id, student_id)
         return {"message": "Usuário deletado do grupo com sucesso!"}, 200
@@ -97,7 +94,7 @@ def delete_group_controller(current_user_id, group_id):
         return {"message": "Falha ao conectar com o banco de dados!"}, 500
     try:
         
-        if int(current_user_id["id"]) != Group.get_teacher_id_from_group_service(connection, group_id):
+        if int(current_user_id) != Group.get_teacher_id_from_group_service(connection, group_id):
             return {"message": "Sem permissão para deletar"}, 400
         Group.delete_group_service(connection, group_id)
         return {"message": "Grupo deletado com sucesso!"}, 200
