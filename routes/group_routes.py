@@ -3,7 +3,7 @@ from flask import request, jsonify, Blueprint
 from controllers.group_controller import *
 
 
-from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import get_jwt_identity, get_jwt
 from flask_jwt_extended import jwt_required
 
 group_app = Blueprint("group_app", __name__)
@@ -13,6 +13,10 @@ group_app = Blueprint("group_app", __name__)
 def create_group_route():
     data = request.get_json()
     id_teacher = get_jwt_identity()
+    type_user = get_jwt()["type"]
+    
+    if(type_user != "teacher"):
+        return jsonify({"error": "Invalid user type"}), 400
 
     response, status_code = create_group_controller(id_teacher, data)
     return jsonify(response), status_code
