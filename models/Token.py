@@ -45,9 +45,8 @@ class Token:
     @staticmethod
     def get_token_by_user_email_service(redis, user_email):
         try:
-            print(f"Token invite:{user_email}")
             token = redis.hgetall(f"Token invite:{user_email}")
-            if token is None:
+            if not token:
                 return None
             
             return token

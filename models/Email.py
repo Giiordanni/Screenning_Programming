@@ -56,8 +56,9 @@ def send_verification_code(email):
     sendEmail(subject, email, body)
 
 def verify_code(email, code):
-    
-    stored_code = redis_client().hgetall(f"verification_code:{email}")
+    redis = redis_client()
+
+    stored_code = redis.hgetall(f"verification_code:{email}")
     
     if stored_code is None:
         print("Nenhum código encontrado no Redis para este email.")
@@ -66,4 +67,9 @@ def verify_code(email, code):
     return stored_code.get("code", "").strip() == code.strip()
         
 def user_data(email):
-    return redis_client().hgetall(f"user_data:{email}")
+    redis = redis_client()
+    return redis.hgetall(f"user_data:{email}")
+
+
+def delete_data(key):
+    redis_client().delete(key)

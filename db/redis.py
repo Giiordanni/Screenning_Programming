@@ -10,6 +10,6 @@ def redis_client():
         connection.ping()
         print("Conectado com sucesso ao Redis")
         return connection
-    except:
+    except redis.ConnectionError:
         print("Falha ao conectar ao Redis")
         return None

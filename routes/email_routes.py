@@ -9,7 +9,7 @@ from middleware.global_middleware import verify_student_is_in_group
 from models.Student import Student
 from models.Teacher import Teacher
 from models.Group import Group
-from models.Email import sendEmail, verify_code, user_data
+from models.Email import sendEmail, verify_code, user_data, delete_data
 from passlib.hash import pbkdf2_sha256 as sha256
 from controllers.token_controller import create_token_controller
 from controllers.student_controller import add_student_controller
@@ -27,6 +27,7 @@ def verification_code(email):
     try:
         data = request.get_json()
         code = data.get('code')
+        email = email.lower().strip()
 
         if not code:
             return jsonify({'error': 'Código não fornecido'}), 400
@@ -39,7 +40,9 @@ def verification_code(email):
         if not dataUser:
             return jsonify({"message": "Os dados do usuário expiraram ou são inválidos."}), 400
         
-
+        delete_data(f"verification_code:{email}")
+        delete_data(f"user_data:{email}")
+        
         if email.split("@")[-1] == "aluno.uepb.edu.br":
             result = add_student_controller(dataUser)
         else: 
@@ -162,6 +165,8 @@ def verify_invite():
         token = Token.get_token_by_user_email_service(redis, userEmail)
         if token["email"] != userEmail:
             return jsonify({"Emails incompativeis"})
+        
+        delete_data(f"Token invite:{userEmail}")
         return jsonify({token})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
