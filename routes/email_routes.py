@@ -161,6 +161,7 @@ def verify_invite():
         user = get_jwt()
         userEmail = User.get_email_by_id(connection, user["id"], user["type"])
         userEmail = str(userEmail[0])
+        userEmail = userEmail.lower().strip()
         
         token = Token.get_token_by_user_email_service(redis, userEmail)
         if token["email"] != userEmail:
