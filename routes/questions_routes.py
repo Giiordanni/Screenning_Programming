@@ -11,8 +11,7 @@ question_app = Blueprint("question_app", __name__)
 def get_questions_by_level_routes():
     
     user_id = get_jwt_identity()
-
-    id_activity = request.json.get("id_activity")
+    id_activity = request.args.get("id_activity")
 
     if not user_id:
         return jsonify({"error": "Parâmetro 'user_id' é obrigatório."}), 400
