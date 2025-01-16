@@ -8,7 +8,7 @@ from models.Group import Group
 from datetime import timedelta
 from flask_jwt_extended import create_access_token
 
-@staticmethod
+
 def verify_email_registered(connection, email):
     user = Student.get_student_by_email_service(connection, email)
     if not user:
@@ -25,7 +25,6 @@ def verify_email_teacher_registered(connection, email):
     if user:
         return {"message": "Email já cadastrado!"}, 400
     
-@staticmethod
 def verify_id_exists(connection, user_id, user_type):
     if user_type == 'student':
         user = Student.get_student_by_id_service(connection, user_id)

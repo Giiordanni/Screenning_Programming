@@ -8,7 +8,7 @@ import numpy as np
 def get_questions_by_level_controller(student_level, id_activity):
     connection = db_connection()
     
-    question_params = Questions.get_question_params(connection)
+    Questions.get_question_params(connection)
     
     response = Questions.get_questions_by_level_service(connection, student_level, id_activity)
 

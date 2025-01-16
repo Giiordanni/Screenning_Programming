@@ -36,7 +36,6 @@ def calculate_student_level_routes():
         return jsonify({"error": "Parâmetros 'ID' e 'student_answer' são obrigatórios."}), 400
 
     is_correct = check_answer_controller(question_id, student_answer)
-    
     params = get_question_params_controller(question_id)
 
     if params is None:
@@ -45,7 +44,7 @@ def calculate_student_level_routes():
     # Desempacotando os parâmetros
     slope, threshold, asymptote = params
 
-    if is_correct:
+    if is_correct[0]:
         new_level = calculate_student_level([1], [[slope, threshold, asymptote]], user_id)
         update_levelStudent_controller(user_id, new_level)
         return jsonify({"message": "Resposta correta!", "new_level": new_level}), 200
