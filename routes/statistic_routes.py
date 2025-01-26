@@ -4,16 +4,6 @@ from controllers.statisc_controller import *
 statistic_app = Blueprint("statistic_app", __name__)
 
 
-@statistic_app.route('/api/statistic', methods=['POST'])
-def create_statistic_routes():
-    try:
-        data = request.json
-        response = create_statistc_controller(data)
-        return jsonify(response), 201
-    except Exception as e:
-        return jsonify({"error": f"Erro ao criar estatística: {str(e)}"}), 500
-
-
 @statistic_app.route('/api/activity/<id_student>', methods=['GET'])
 def get_activity_statistics_routes(id_student):
     try:

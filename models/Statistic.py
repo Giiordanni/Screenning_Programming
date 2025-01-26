@@ -3,12 +3,12 @@ import mysql.connector
 
 class Statistic:
 
-    def create_statistc_service(connection, id_student, id_activity,id_question, answer_correct):
+    def create_statistc_service(connection, id_student, id_activity, id_question, answer_correct):
         try:
             if connection.is_connected():
-                query = "INSERT INTO statistic (id_student, id_activity, id_question, answer_correct) VALUES (%s,%s, %s, %s)"
+                query = "INSERT INTO statistic(id_student, id_activity, id_question, answer_correct) VALUES (%s, %s, %s, %s)"
                 cursor = connection.cursor()
-                cursor.execute(query, (id_student, id_activity ,id_question, answer_correct))
+                cursor.execute(query, (id_student, id_activity , id_question, answer_correct,))
                 connection.commit()
                 return {"message": "Estatística criada com sucesso."}, 201
             else:
@@ -31,7 +31,7 @@ class Statistic:
                             WHERE s.id_student = %s AND s.id_activity = %s
                             """
                 cursor = connection.cursor()
-                cursor.execute(query, (id_student,id_activity,))
+                cursor.execute(query, (id_student, id_activity,))
                 result = cursor.fetchall()
                 return result
             else:

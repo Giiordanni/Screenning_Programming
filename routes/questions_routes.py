@@ -3,6 +3,7 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 from controllers.student_controller import update_levelStudent_controller
 from models.Questions import Questions
 from controllers.questions_controller import *
+from controllers.statisc_controller import create_statistc_controller
 
 question_app = Blueprint("question_app", __name__)
 
@@ -31,8 +32,9 @@ def calculate_student_level_routes():
     data = request.json
     question_id = data.get("ID")
     student_answer = data.get("student_answer")
+    id_activity = data.get("id_activity")
     
-    if not question_id or student_answer is None:
+    if not question_id or not student_answer or id_activity is None:
         return jsonify({"error": "Parâmetros 'ID' e 'student_answer' são obrigatórios."}), 400
 
     is_correct = check_answer_controller(question_id, student_answer)
@@ -40,6 +42,8 @@ def calculate_student_level_routes():
 
     if params is None:
         return jsonify({"error": "Parâmetros da questão não encontrados."}), 404
+    
+    stat_response, status = create_statistc_controller(user_id, id_activity, question_id, is_correct[1])
 
     # Desempacotando os parâmetros
     slope, threshold, asymptote = params
@@ -47,9 +51,11 @@ def calculate_student_level_routes():
     if is_correct[0]:
         new_level = calculate_student_level([1], [[slope, threshold, asymptote]], user_id)
         update_levelStudent_controller(user_id, new_level)
-        return jsonify({"message": "Resposta correta!", "new_level": new_level}), 200
+        return jsonify({"message": "Resposta correta!", "new_level": new_level, "static_response": {"response": stat_response, "status": status}}), 200
     else:
         new_level = calculate_student_level([0], [[slope, threshold, asymptote]], user_id)
         update_levelStudent_controller(user_id, new_level)
-        return jsonify({"message": "Resposta incorreta.", "new_level": new_level}), 200
+        return jsonify({"message": "Resposta incorreta.", "new_level": new_level, "static_response": {"response": stat_response, "status": status}}), 200
+    
+     
 

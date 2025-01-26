@@ -5,6 +5,7 @@ from models.Questions import Questions
 from models.Student import Student
 import numpy as np
 
+
 def get_questions_by_level_controller(student_level, id_activity):
     connection = db_connection()
     
@@ -50,3 +51,6 @@ def check_answer_controller(question_id, student_answer):
 def get_question_params_controller(question_id):
     connection = db_connection()
     return Questions.get_params_by_question_id(connection, question_id)
+
+
+

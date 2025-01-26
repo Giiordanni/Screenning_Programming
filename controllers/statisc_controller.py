@@ -26,10 +26,10 @@ def create_statistc_controller(id_student, id_activity, id_question, answer_corr
         connection.close()
 
 
-def group_answer_by_id_student_controller(id_student,id_activity):
+def group_answer_by_id_student_controller(id_student, id_activity):
     connection = db_connection()
     try:
-        questions = Statistic.group_answer_by_id_student_service(connection, id_student,id_activity)
+        questions = Statistic.group_answer_by_id_student_service(connection, id_student, id_activity)
     finally:
         connection.close()
     
