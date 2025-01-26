@@ -1,0 +1,11 @@
+DB_HOST = ocdb.app
+DB_PORT =  5051
+DB_USER = user_42jr9mybw
+DB_PASSWORD = p42jr9mybw
+DB_DATABASE = db_42jr9mybw
+SECRET_KEY=sdfgfhgjhgseerytegresv
+JWT_SECRET_KEY=fdhyjtjutyjjhnjytuhrt
+EMAIL_USER = screenprograming@gmail.com       
+EMAIL_PASSWORD = hqywjcddaqatqcvc  
+FIREBASE_STORAGE_BUCKET = screen-programing-352a5.appspot.com
+REDIS_CLIENT=redis://default:OLoFtkc2X77RFTLrWqZbjFBwr3c78k24@redis-11314.c83.us-east-1-2.ec2.redns.redis-cloud.com:11314
