@@ -2,6 +2,7 @@ from flask import request
 from db.firebase import *
 from models.Actividy import Activity
 from db.bd_mysql import db_connection
+from datetime import datetime
 
 def create_activity_controller(data):
     
@@ -9,7 +10,12 @@ def create_activity_controller(data):
     id_content = data.get("id_content")
     description = data.get("description")
     deadline = data.get("deadline")
-    quantity_questios = data.get("number_questions") 
+
+    date_now = datetime.now()
+    deadline = datetime.strptime(deadline, '%d/%m/%Y')
+    date_now = datetime.strptime(date_now.strftime('%d/%m/%Y'))
+    if deadline < date_now:
+        return {"message": "Data limite inválida"}, 400
 
     connection = db_connection()
 
