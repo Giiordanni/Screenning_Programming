@@ -5,22 +5,25 @@ from db.bd_mysql import db_connection
 from datetime import datetime
 
 def create_activity_controller(data):
-    
+    connection = db_connection()
+
     id_group = data.get("id_group")
     id_content = data.get("id_content")
     description = data.get("description")
     deadline = data.get("deadline")
+    amount_questions = data.get("amount_questions")
+
+    if amount_questions is not None and amount_questions < 20:
+        return {"message": "Quantidade de questões inválida. Valor mínimo é 20 questões"}, 400
 
     date_now = datetime.now()
     deadline = datetime.strptime(deadline, '%d/%m/%Y')
     date_now = datetime.strptime(date_now.strftime('%d/%m/%Y'))
     if deadline < date_now:
         return {"message": "Data limite inválida"}, 400
-
-    connection = db_connection()
-
+    
     activity = Activity()
-    inserted_id = activity.create_activity_service(connection, id_group, id_content, description, deadline)
+    inserted_id = activity.create_activity_service(connection, id_group, id_content, description, deadline, amount_questions)
     if inserted_id is not None:
         return {"message": 'Atividade criada com sucesso!', "activity_id": inserted_id}, 200
     else:

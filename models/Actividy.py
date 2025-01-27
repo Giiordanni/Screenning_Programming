@@ -2,11 +2,18 @@ from mysql.connector import Error
 
 class Activity:
     
-    def create_activity_service(self, connection, id_group,id_content, description, deadline):
+    def create_activity_service(self, connection, id_group,id_content, description, deadline, amount_questions):
+
         try:
             cursor = connection.cursor()
-            cursor.execute("INSERT INTO activity (id_group, id_content, description, deadline) VALUES (%s, %s, %s, %s)",
-                           (id_group, id_content, description, deadline))
+ 
+            if amount_questions is None:
+                query = "INSERT INTO activity (id_group, id_content, description, deadline) VALUES (%s, %s, %s, %s"
+                cursor.execute(query, (id_group, id_content, description, deadline))
+            else:
+                query = "INSERT INTO activity (id_group, id_content, description, deadline, amount_questions) VALUES (%s, %s, %s, %s, %s)"
+                cursor.execute(query, (id_group, id_content, description, deadline, amount_questions))
+        
             connection.commit()
             print("Activity saved successfully")
             inserted_id = cursor.lastrowid 
