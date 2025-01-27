@@ -61,19 +61,24 @@ def delete_activity_controller(id_activity):
         return {"message": "Atividade não encontrada"}, 404
     
 
-def update_activity_controller(data):
-    id_activity = data.get("id_activity")
+def update_activity_controller(data, id_activity):
 
-    if 'description' not in data and 'deadline' not in data:
+    if 'description' not in data and 'deadline' not in data and 'status_activity' not in data:
         return {"message": "Nenhum campo enviado para atualização"}, 400
     
-    if not id_activity:
-        return {"message": "ID da atividade é obrigatório"}, 400
 
     connection = db_connection()
-
     result = Activity.update_activity_model(connection, id_activity, data)
     if result:
         return {"message": "Atividade atualizada com sucesso!"}, 200
     else:
         return {"message": "Atividade não encontrada"}, 404
+
+
+def verify_permission_user(id_teacher, id_activity):
+    connection = db_connection()
+    result = Activity.verify_permission_user_model(connection, id_teacher, id_activity)
+    if result is not None:
+        return True
+    else:
+        return False

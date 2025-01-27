@@ -90,3 +90,17 @@ class Activity:
             cursor.close()
             connection.close()
     
+    @staticmethod
+    def verify_permission_user_model(connection, id_teacher, id_activity):
+        try:
+            cursor = connection.cursor()
+            cursor.execute("""SELECT * FROM activity a 
+                           JOIN group_table gp ON a.id_group = gp.id_grupo
+                           WHERE a.id_activity = %s AND gp.id_teacher = %s""", (id_activity, id_teacher))
+            result = cursor.fetchone()
+            return result
+        except Error as e:
+            print(f"Error verifying permission in database: {e}")
+        finally:
+            cursor.close()
+            connection.close()
