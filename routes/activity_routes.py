@@ -3,7 +3,7 @@ from flask import request, jsonify, Blueprint
 from controllers.activity_controller import *
 
 from flask_jwt_extended import jwt_required
-from flask_jwt_extended import get_jwt_identity, get_jwt
+from flask_jwt_extended import get_jwt
 
 activity_app = Blueprint("activity_app", __name__)
 
