@@ -10,6 +10,7 @@ activity_app = Blueprint("activity_app", __name__)
 @activity_app.route("/api/activity", methods=["POST"])
 @jwt_required()
 def create_activity_route():
+
     type_user = get_jwt()["type"]
     if(type_user != "teacher"):
         return jsonify({"error": "Invalid user type"}), 400
@@ -22,6 +23,7 @@ def create_activity_route():
 @activity_app.route("/api/activity", methods=["GET"])
 @jwt_required()
 def get_activity_route():
+
     id_content = request.args.get('id_content')
     id_group = request.args.get('id_group')
     
@@ -44,6 +46,7 @@ def get_all_activity_route():
     response, status_code = get_all_activity_controller(data)
     
     return jsonify(response), status_code
+
 
 @activity_app.route("/api/activity/<id_activity>", methods=["DELETE"])
 @jwt_required()

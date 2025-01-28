@@ -30,10 +30,10 @@ def create_activity_controller(data):
         return {"message": "Falha ao criar atividade"}, 500
 
 def get_activity_controller(data):
+    connection = db_connection()
+
     id_group = data.get("id_group")
     id_content = data.get("id_content")
-
-    connection = db_connection()
 
     result =  Activity.get_activity_model(connection, id_content, id_group)
     if result is not None:

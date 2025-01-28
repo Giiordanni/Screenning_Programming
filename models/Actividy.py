@@ -3,7 +3,6 @@ from mysql.connector import Error
 class Activity:
     
     def create_activity_service(self, connection, id_group,id_content, description, deadline, amount_questions):
-
         try:
             cursor = connection.cursor()
  
@@ -25,6 +24,7 @@ class Activity:
         finally:
             cursor.close()
             connection.close()
+
 
     def get_activity_model(connection, id_content, id_group):
         try:
@@ -69,7 +69,6 @@ class Activity:
             connection.close()
 
 
-
     def update_activity_model(connection, id_activity, data):
         try:
             cursor = connection.cursor()
@@ -111,3 +110,39 @@ class Activity:
         finally:
             cursor.close()
             connection.close()
+
+
+    @staticmethod
+    def create_student_table(connection, id_student, id_activity, questions_answered_count):
+        try:
+            cursor = connection.cursor()
+            query = "INSERT INTO activity_student (id_student, id_activity, questions_answered_count) VALUES (%s, %s, %s)"
+            cursor.execute(query, (id_student, id_activity, questions_answered_count))
+            connection.commit()
+            return True
+        except Error as e:
+            print(f"Error creating student table in database: {e}")
+        finally:
+            cursor.close()
+            connection.close()
+
+    @staticmethod
+    def check_activity_status_student(connection, id_student, id_activity):
+        try:
+            cursor = connection.cursor()
+            cursor.execute("SELECT status_activity FROM activity_student WHERE id_student = %s AND id_activity = %s", (id_student, id_activity))
+            result = cursor.fetchone()
+            
+            if result and result[0]== 'Aberta':
+                return True
+            elif result and result[0] == 'Concluída':
+                return False
+            else:
+                return None
+            
+        except Error as e:
+            print(f"Error checking activity status: {e}")
+            return None
+        finally:
+            cursor.close()
+            

@@ -3,17 +3,20 @@ from db.bd_mysql import db_connection
 from models import Student
 from models.Questions import Questions
 from models.Student import Student
+from models.Actividy import Activity
 import numpy as np
 
 
-def get_questions_by_level_controller(student_level, id_activity):
+def get_questions_by_level_controller(student_level, id_activity, user_id):
     connection = db_connection()
-    
-    Questions.get_question_params(connection)
-    
-    response = Questions.get_questions_by_level_service(connection, student_level, id_activity)
-
-    return response, 200
+    response = Activity.check_activity_status_student(connection, user_id, id_activity)
+    if response is True:
+        response = Questions.get_questions_by_level_service(connection, student_level, id_activity)
+        return response, 200
+    elif response is False:
+        return {"error": "Atividade não está aberta."}, 400
+    else:
+        return {"error": "Erro ao verificar status da atividade."}, 500
 
 # Função para definir o nível inicial do aluno (valor fixo)
 def get_student_initial_level(user_id):

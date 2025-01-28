@@ -52,6 +52,7 @@ class Student(User):
             return False
         finally:
             cursor.close()
+            connection.close()
     
     def update_student_service(connection, user_id, field, value):
         User.update_user_service(connection, 'aluno', user_id, field, value)
