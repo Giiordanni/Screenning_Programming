@@ -91,8 +91,10 @@ def get_status_activity(id_activity):
         'concluída': False
     }
     try:
-        result = Activity.get_status_activity(connection, id_activity).lower()
-        return status_mapping.get(result, None)
+        result = Activity.get_status_activity(connection, id_activity)
+        if isinstance(result, tuple):
+            result = result[0]
+        return status_mapping.get(result.lower(), None)
     except Exception as e:
         print(f"Error getting activity status: {e}")
         return False
