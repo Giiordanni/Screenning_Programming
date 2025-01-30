@@ -190,3 +190,15 @@ class Activity:
         finally:
             cursor.close()
             
+    @staticmethod
+    def get_status_activity(connection, id_activity):
+        try:
+            cursor = connection.cursor()
+            cursor.execute("SELECT status_activity FROM activity WHERE id_activity = %s", (id_activity, ))
+            result = cursor.fetchone()
+            return result
+        except Error as e:
+            print(f"Error getting status activity from database: {e}")
+        finally:
+            cursor.close()
+            connection.close()

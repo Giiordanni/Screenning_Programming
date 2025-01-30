@@ -83,3 +83,18 @@ def student_activity(id_student, id_activity):
     finally:
         connection.close()
         
+
+def get_status_activity(id_activity):
+    connection = db_connection()
+    status_mapping = {
+        'aberta': True,
+        'concluída': False
+    }
+    try:
+        result = Activity.get_status_activity(connection, id_activity).lower()
+        return status_mapping.get(result, None)
+    except Exception as e:
+        print(f"Error getting activity status: {e}")
+        return False
+    finally:
+        connection.close()
