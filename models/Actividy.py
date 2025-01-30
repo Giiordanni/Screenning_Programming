@@ -152,13 +152,13 @@ class Activity:
                         WHERE ac.id_student = %s AND ac.id_activity = %s"""
             cursor.execute(query, (id_student, id_activity))
             result = cursor.fetchone()
-            
+
             if result[1] == result[2] and result[0] == 'Aberta':
                 query = "UPDATE activity_student SET status_activity = 'concluída' WHERE id_student = %s AND id_activity = %s"
                 cursor.execute(query, (id_student, id_activity))
                 connection.commit()
                 return False
-            elif result[0] == 'concluída' or result[4] == 'concluída':
+            elif result[0].lower() == 'concluída' or result[4].lower() == 'concluída':
                 return False
             elif result[2] != result[1] and result[0] == 'Aberta':
                 return True
