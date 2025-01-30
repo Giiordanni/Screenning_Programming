@@ -5,32 +5,35 @@ from db.bd_mysql import db_connection
 from datetime import datetime
 
 def create_activity_controller(data):
-    
+    connection = db_connection()
+
     id_group = data.get("id_group")
     id_content = data.get("id_content")
     description = data.get("description")
     deadline = data.get("deadline")
+    amount_questions = data.get("amount_questions")
+
+    if amount_questions is not None and amount_questions < 20:
+        return {"message": "Quantidade de questões inválida. Valor mínimo é 20 questões"}, 400
 
     date_now = datetime.now()
     deadline = datetime.strptime(deadline, '%d/%m/%Y')
     date_now = datetime.strptime(date_now.strftime('%d/%m/%Y'))
     if deadline < date_now:
         return {"message": "Data limite inválida"}, 400
-
-    connection = db_connection()
-
+    
     activity = Activity()
-    inserted_id = activity.create_activity_service(connection, id_group, id_content, description, deadline)
+    inserted_id = activity.create_activity_service(connection, id_group, id_content, description, deadline, amount_questions)
     if inserted_id is not None:
         return {"message": 'Atividade criada com sucesso!', "activity_id": inserted_id}, 200
     else:
         return {"message": "Falha ao criar atividade"}, 500
 
 def get_activity_controller(data):
+    connection = db_connection()
+
     id_group = data.get("id_group")
     id_content = data.get("id_content")
-
-    connection = db_connection()
 
     result =  Activity.get_activity_model(connection, id_content, id_group)
     if result is not None:
@@ -61,19 +64,24 @@ def delete_activity_controller(id_activity):
         return {"message": "Atividade não encontrada"}, 404
     
 
-def update_activity_controller(data):
-    id_activity = data.get("id_activity")
+def update_activity_controller(data, id_activity):
 
-    if 'description' not in data and 'deadline' not in data:
+    if 'description' not in data and 'deadline' not in data and 'status_activity' not in data:
         return {"message": "Nenhum campo enviado para atualização"}, 400
     
-    if not id_activity:
-        return {"message": "ID da atividade é obrigatório"}, 400
 
     connection = db_connection()
-
     result = Activity.update_activity_model(connection, id_activity, data)
     if result:
         return {"message": "Atividade atualizada com sucesso!"}, 200
     else:
         return {"message": "Atividade não encontrada"}, 404
+
+
+def verify_permission_user(id_teacher, id_activity):
+    connection = db_connection()
+    result = Activity.verify_permission_user_model(connection, id_teacher, id_activity)
+    if result is not None:
+        return True
+    else:
+        return False

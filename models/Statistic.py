@@ -20,6 +20,7 @@ class Statistic:
         finally:
             cursor.close()
 
+
     def group_answer_by_id_student_service(connection, id_student, id_activity):
         try:
             if connection.is_connected():

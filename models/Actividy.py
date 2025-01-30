@@ -1,12 +1,19 @@
 from mysql.connector import Error
+from datetime import datetime
 
 class Activity:
     
-    def create_activity_service(self, connection, id_group,id_content, description, deadline):
+    def create_activity_service(self, connection, id_group,id_content, description, deadline, amount_questions):
         try:
             cursor = connection.cursor()
-            cursor.execute("INSERT INTO activity (id_group, id_content, description, deadline) VALUES (%s, %s, %s, %s)",
-                           (id_group, id_content, description, deadline))
+ 
+            if amount_questions is None:
+                query = "INSERT INTO activity (id_group, id_content, description, deadline) VALUES (%s, %s, %s, %s"
+                cursor.execute(query, (id_group, id_content, description, deadline))
+            else:
+                query = "INSERT INTO activity (id_group, id_content, description, deadline, amount_questions) VALUES (%s, %s, %s, %s, %s)"
+                cursor.execute(query, (id_group, id_content, description, deadline, amount_questions))
+        
             connection.commit()
             print("Activity saved successfully")
             inserted_id = cursor.lastrowid 
@@ -18,6 +25,7 @@ class Activity:
         finally:
             cursor.close()
             connection.close()
+
 
     def get_activity_model(connection, id_content, id_group):
         try:
@@ -62,7 +70,6 @@ class Activity:
             connection.close()
 
 
-
     def update_activity_model(connection, id_activity, data):
         try:
             cursor = connection.cursor()
@@ -90,3 +97,96 @@ class Activity:
             cursor.close()
             connection.close()
     
+    @staticmethod
+    def verify_permission_user_model(connection, id_teacher, id_activity):
+        try:
+            cursor = connection.cursor()
+            cursor.execute("""SELECT * FROM activity a 
+                           JOIN group_table gp ON a.id_group = gp.id_grupo
+                           WHERE a.id_activity = %s AND gp.id_teacher = %s""", (id_activity, id_teacher))
+            result = cursor.fetchone()
+            return result
+        except Error as e:
+            print(f"Error verifying permission in database: {e}")
+        finally:
+            cursor.close()
+            connection.close()
+
+
+    @staticmethod
+    def create_student_table(connection, id_student, id_activity):
+        try:
+            cursor = connection.cursor()
+            query = "INSERT INTO activity_student (id_student, id_activity) VALUES (%s, %s)"
+            cursor.execute(query, (id_student, id_activity))
+            connection.commit()
+            return True
+        except Error as e:
+            print(f"Error creating student table in database: {e}")
+        finally:
+            cursor.close()
+            
+
+    @staticmethod
+    def check_student_activity(connection, id_student, id_activity):
+        try:
+            cursor = connection.cursor()
+            cursor.execute("SELECT id FROM activity_student WHERE id_student = %s AND id_activity = %s", (id_student, id_activity))
+            id = cursor.fetchone()
+            if id:
+                return id
+            else:
+                return None
+        except Error as e:
+            print(f"Error getting student activity from database: {e}")
+        finally:
+            cursor.close()
+
+    @staticmethod
+    def check_activity_status_student(connection, id_student, id_activity):
+        try:
+            cursor = connection.cursor()
+            query = """SELECT ac.status_activity, a.amount_questions, ac.questions_answered_count, a.deadline, a.status_activity 
+                        FROM activity_student ac 
+                        JOIN activity a ON ac.id_activity = a.id_activity
+                        WHERE ac.id_student = %s AND ac.id_activity = %s"""
+            cursor.execute(query, (id_student, id_activity))
+            result = cursor.fetchone()
+            
+            if result[1] == result[2] and result[0] == 'Aberta':
+                query = "UPDATE activity_student SET status_activity = 'concluída' WHERE id_student = %s AND id_activity = %s"
+                cursor.execute(query, (id_student, id_activity))
+                connection.commit()
+                return False
+            elif result[0] == 'concluída' or result[4] == 'concluída':
+                return False
+            elif result[2] != result[1] and result[0] == 'Aberta':
+                return True
+            elif result[3]:
+                deadline_date = datetime.strptime(result[3], '%d/%m/%Y')
+                if deadline_date.date() <= datetime.today().date():
+                    query = "UPDATE activity SET status_activity = 'concluída' WHERE id_activity = %s"
+                    cursor.execute(query, (id_activity, ))
+                    connection.commit()
+                    return False
+            else:
+                return None
+        except Exception as e:
+            print(f"Erro: {e}")
+            connection.rollback()
+            return None
+        finally:
+            cursor.close()
+            
+    @staticmethod
+    def update_aswered_count_student(connection, id_student, id_activity):
+        try:
+            cursor = connection.cursor()
+            cursor.execute("UPDATE activity_student SET questions_answered_count = questions_answered_count + 1 WHERE id_student = %s AND id_activity = %s", (id_student, id_activity))
+            connection.commit()
+            return True
+        except Error as e:
+            print(f"Error updating answered count in database: {e}")
+        finally:
+            cursor.close()
+            
