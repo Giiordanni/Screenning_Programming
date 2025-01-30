@@ -52,6 +52,10 @@ def calculate_student_level_routes():
     # Desempacotando os parâmetros
     slope, threshold, asymptote = params
 
+    activity_student = student_activity(user_id, id_activity)
+    if not activity_student:
+        return jsonify({"error": "Erro ao processar a atividade do aluno."})
+
     if is_correct[0]:
         new_level = calculate_student_level([1], [[slope, threshold, asymptote]], user_id)
         update_levelStudent_controller(user_id, new_level)
@@ -61,5 +65,7 @@ def calculate_student_level_routes():
         update_levelStudent_controller(user_id, new_level)
         return jsonify({"message": "Resposta incorreta.", "new_level": new_level, "static_response": {"response": status_response, "status": status}}), 200
     
+    
+
      
 

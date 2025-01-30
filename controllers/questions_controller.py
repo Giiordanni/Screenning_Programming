@@ -8,20 +8,26 @@ import numpy as np
 
 
 def get_questions_by_level_controller(student_level, id_activity, user_id):
-    connection = db_connection()
-    response = Activity.check_activity_status_student(connection, user_id, id_activity)
-    if response is True:
-        response = Questions.get_questions_by_level_service(connection, student_level, id_activity)
-        return response, 200
-    elif response is False:
-        return {"error": "Atividade não está aberta."}, 400
-    else:
-        return {"error": "Erro ao verificar status da atividade."}, 500
+    try:
+        connection = db_connection()
+        response = Activity.check_activity_status_student(connection, user_id, id_activity)
+        if response is True:
+            result = Questions.get_questions_by_level_service(connection, student_level, id_activity)
+            return result, 200
+        elif response is False:
+            return {"error": "A atividade foi concluída."}, 400
+        else:
+            return {"error": "Erro ao verificar status da atividade."}, 500
+    finally:
+        connection.close()
 
 # Função para definir o nível inicial do aluno (valor fixo)
 def get_student_initial_level(user_id):
-    connection = db_connection()
-    return Student.get_student_lvl_service(connection,user_id)
+    try:
+        connection = db_connection()
+        return Student.get_student_lvl_service(connection,user_id)
+    finally:
+        connection.close()
 
 
 def calculate_student_level(student_responses, question_params, user_id):
@@ -41,19 +47,39 @@ def calculate_student_level(student_responses, question_params, user_id):
 
 
 def check_answer_controller(question_id, student_answer):
-    connection = db_connection()
-    result = Questions.get_correct_answer(connection, question_id)
-    if result:
-        correct_aswer = result[0]
-        if student_answer == correct_aswer:
-            return True, 1
-        else:
-            return False, 0
-    return False
+    try:
+        connection = db_connection()
+        result = Questions.get_correct_answer(connection, question_id)
+        if result:
+            correct_aswer = result[0]
+            if student_answer == correct_aswer:
+                return True, 1
+            else:
+                return False, 0
+    except Exception:
+        return False
+    finally:
+        connection.close()
 
 def get_question_params_controller(question_id):
+    try:
+        connection = db_connection()
+        return Questions.get_params_by_question_id(connection, question_id)
+    finally:
+        connection.close()
+
+
+def student_activity(id_student, id_activity):
     connection = db_connection()
-    return Questions.get_params_by_question_id(connection, question_id)
-
-
-
+    try:
+        id_user_activity = Activity.check_student_activity(connection, id_student, id_activity)
+        if id_user_activity[0]:
+            return Activity.update_aswered_count_student(connection, id_student, id_activity)
+        else:
+            return Activity.create_student_table(connection, id_student, id_activity)
+    except Exception as e:
+        print(f"Error processing student activity: {e}")
+        return False
+    finally:
+        connection.close()
+        
