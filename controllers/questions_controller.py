@@ -86,15 +86,13 @@ def student_activity(id_student, id_activity):
 
 def get_status_activity(id_activity):
     connection = db_connection()
-    status_mapping = {
-        'aberta': True,
-        'concluída': False
-    }
     try:
         result = Activity.get_status_activity(connection, id_activity)
-        if isinstance(result, tuple):
-            result = result[0]
-        return status_mapping.get(result.lower(), None)
+        print(result)
+        if result[0].lower() == 'concluída' or result[1].lower() == 'concluída':
+            return False
+        else:
+            return True
     except Exception as e:
         print(f"Error getting activity status: {e}")
         return False
