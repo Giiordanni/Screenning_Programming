@@ -83,3 +83,18 @@ def student_activity(id_student, id_activity):
     finally:
         connection.close()
         
+
+def get_status_activity(id_activity):
+    connection = db_connection()
+    try:
+        result = Activity.get_status_activity(connection, id_activity)
+        print(result)
+        if result[0].lower() == 'concluída' or result[1].lower() == 'concluída':
+            return False
+        else:
+            return True
+    except Exception as e:
+        print(f"Error getting activity status: {e}")
+        return False
+    finally:
+        connection.close()

@@ -200,7 +200,7 @@ class Activity:
             print(f"Error getting status activity from database: {e}")
         finally:
             cursor.close()
-            
+    
     
     def get_status_activity_all(connection, id_group):
         cursor = connection.cursor()
