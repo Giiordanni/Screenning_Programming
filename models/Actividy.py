@@ -3,12 +3,11 @@ from datetime import datetime
 
 class Activity:
     
-    def create_activity_service(self, connection, id_group,id_content, description, deadline, amount_questions):
+    def create_activity_service(connection, id_group, id_content, description, deadline, amount_questions):
+        cursor = connection.cursor()
         try:
-            cursor = connection.cursor()
- 
             if amount_questions is None:
-                query = "INSERT INTO activity (id_group, id_content, description, deadline) VALUES (%s, %s, %s, %s"
+                query = "INSERT INTO activity (id_group, id_content, description, deadline) VALUES (%s, %s, %s, %s)"
                 cursor.execute(query, (id_group, id_content, description, deadline))
             else:
                 query = "INSERT INTO activity (id_group, id_content, description, deadline, amount_questions) VALUES (%s, %s, %s, %s, %s)"
@@ -152,13 +151,13 @@ class Activity:
                         WHERE ac.id_student = %s AND ac.id_activity = %s"""
             cursor.execute(query, (id_student, id_activity))
             result = cursor.fetchone()
-            
+
             if result[1] == result[2] and result[0] == 'Aberta':
                 query = "UPDATE activity_student SET status_activity = 'concluída' WHERE id_student = %s AND id_activity = %s"
                 cursor.execute(query, (id_student, id_activity))
                 connection.commit()
                 return False
-            elif result[0] == 'concluída' or result[4] == 'concluída':
+            elif result[0].lower() == 'concluída' or result[4].lower() == 'concluída':
                 return False
             elif result[2] != result[1] and result[0] == 'Aberta':
                 return True
@@ -190,3 +189,38 @@ class Activity:
         finally:
             cursor.close()
             
+    @staticmethod
+    def get_status_activity(connection, id_activity):
+        try:
+            cursor = connection.cursor()
+            cursor.execute("SELECT ac.status_activity, a.status_activity FROM activity a JOIN  activity_student ac ON a.id_activity = ac.id_activity WHERE a.id_activity = %s", (id_activity, ))
+            result = cursor.fetchone()
+            return result
+        except Error as e:
+            print(f"Error getting status activity from database: {e}")
+        finally:
+            cursor.close()
+            
+    
+    def get_status_activity_all(connection, id_group):
+        cursor = connection.cursor()
+        try:
+            cursor.execute("SELECT id_activity, description, status_activity, deadline, amount_questions FROM activity WHERE id_group = %s", (id_group,))
+            result = cursor.fetchall()
+            if result:
+                activities = []
+                for row in result:
+                    activities.append({
+                        "id_activity": row[0],
+                        "description": row[1],
+                        "status_activity": row[2],
+                        "deadline": row[3],
+                        "amount_questions": row[4]
+                    })
+                return activities
+            else:
+                return None
+        except Error as e:
+            print(f"Error getting status activity from database: {e}")
+        finally:
+            cursor.close()
