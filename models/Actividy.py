@@ -3,12 +3,11 @@ from datetime import datetime
 
 class Activity:
     
-    def create_activity_service(self, connection, id_group,id_content, description, deadline, amount_questions):
+    def create_activity_service(connection, id_group, id_content, description, deadline, amount_questions):
+        cursor = connection.cursor()
         try:
-            cursor = connection.cursor()
- 
             if amount_questions is None:
-                query = "INSERT INTO activity (id_group, id_content, description, deadline) VALUES (%s, %s, %s, %s"
+                query = "INSERT INTO activity (id_group, id_content, description, deadline) VALUES (%s, %s, %s, %s)"
                 cursor.execute(query, (id_group, id_content, description, deadline))
             else:
                 query = "INSERT INTO activity (id_group, id_content, description, deadline, amount_questions) VALUES (%s, %s, %s, %s, %s)"
@@ -201,4 +200,27 @@ class Activity:
             print(f"Error getting status activity from database: {e}")
         finally:
             cursor.close()
-            connection.close()
+    
+    
+    def get_status_activity_all(connection, id_group):
+        cursor = connection.cursor()
+        try:
+            cursor.execute("SELECT id_activity, description, status_activity, deadline, amount_questions FROM activity WHERE id_group = %s", (id_group,))
+            result = cursor.fetchall()
+            if result:
+                activities = []
+                for row in result:
+                    activities.append({
+                        "id_activity": row[0],
+                        "description": row[1],
+                        "status_activity": row[2],
+                        "deadline": row[3],
+                        "amount_questions": row[4]
+                    })
+                return activities
+            else:
+                return None
+        except Error as e:
+            print(f"Error getting status activity from database: {e}")
+        finally:
+            cursor.close()

@@ -84,3 +84,15 @@ def update_activity_route(id_activity):
         return jsonify(response), status_code
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+
+@activity_app.route('/api/activity/complete', methods=['GET'])
+@jwt_required()
+def complete_activity():
+    
+    id_group = request.args.get('id_group')
+    if not id_group:
+        return jsonify({"error": "Parâmetro 'id_group' é obrigatório."}), 400
+
+    result, status_code = status_activity_all(id_group)
+    return jsonify(result), status_code

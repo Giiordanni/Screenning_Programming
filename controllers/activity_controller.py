@@ -16,14 +16,14 @@ def create_activity_controller(data):
     if amount_questions is not None and amount_questions < 20:
         return {"message": "Quantidade de questões inválida. Valor mínimo é 20 questões"}, 400
 
+    print(deadline)
     date_now = datetime.now()
-    deadline = datetime.strptime(deadline, '%d/%m/%Y')
-    date_now = datetime.strptime(date_now.strftime('%d/%m/%Y'))
-    if deadline < date_now:
+    deadline_date = datetime.strptime(deadline, '%d/%m/%Y')
+
+    if deadline_date.date() < date_now.date():
         return {"message": "Data limite inválida"}, 400
     
-    activity = Activity()
-    inserted_id = activity.create_activity_service(connection, id_group, id_content, description, deadline, amount_questions)
+    inserted_id = Activity.create_activity_service(connection, id_group, id_content, description, deadline, amount_questions)
     if inserted_id is not None:
         return {"message": 'Atividade criada com sucesso!', "activity_id": inserted_id}, 200
     else:
@@ -85,3 +85,17 @@ def verify_permission_user(id_teacher, id_activity):
         return True
     else:
         return False
+    
+def status_activity_all(id_group):
+    connection = db_connection()
+    try:
+        response = Activity.get_status_activity_all(connection, id_group)
+        if response:
+            return response, 200
+        else:
+            return {"message": "Atividade não encontrada"}, 404
+    except Exception as e:
+        print(f"Error retrieving activities: {e}")
+        return {"message": "Erro ao recuperar atividades"}, 500
+    finally:
+        connection.close()
