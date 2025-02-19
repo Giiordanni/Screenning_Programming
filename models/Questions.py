@@ -60,6 +60,8 @@ class Questions:
 
         except mysql.connector.Error as err:
             return {"error": f"Erro ao acessar o banco de dados: {str(err)}"}, 500
+        finally:
+            cursor.close()
         
     @staticmethod
     def get_correct_answer(connection, question_id):

@@ -16,7 +16,6 @@ def create_activity_controller(data):
     if amount_questions is not None and amount_questions < 20:
         return {"message": "Quantidade de questões inválida. Valor mínimo é 20 questões"}, 400
 
-    print(deadline)
     date_now = datetime.now()
     deadline_date = datetime.strptime(deadline, '%d/%m/%Y')
 
@@ -28,6 +27,8 @@ def create_activity_controller(data):
         return {"message": 'Atividade criada com sucesso!', "activity_id": inserted_id}, 200
     else:
         return {"message": "Falha ao criar atividade"}, 500
+    
+    
 
 def get_activity_controller(data):
     connection = db_connection()
