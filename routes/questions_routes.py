@@ -53,7 +53,6 @@ def calculate_student_level_routes():
     slope, threshold, asymptote = params
 
     status_activity = get_status_activity(id_activity)
-    print(status_activity)
     if status_activity is False:
         return jsonify({'error': 'A atividade foi finalizada!'}), 400
 

@@ -72,11 +72,11 @@ def get_question_params_controller(question_id):
 def student_activity(id_student, id_activity):
     connection = db_connection()
     try:
-        id_user_activity = Activity.check_student_activity(connection, id_student, id_activity)
-        if id_user_activity[0]:
+        is_student_associated = Activity.is_student_associated_with_activity(connection, id_student, id_activity)
+        if is_student_associated:
             return Activity.update_aswered_count_student(connection, id_student, id_activity)
         else:
-            return Activity.create_student_table(connection, id_student, id_activity)
+            return Activity.add_student_to_activity(connection, id_student, id_activity)
     except Exception as e:
         print(f"Error processing student activity: {e}")
         return False
@@ -88,7 +88,6 @@ def get_status_activity(id_activity):
     connection = db_connection()
     try:
         result = Activity.get_status_activity(connection, id_activity)
-        print(result)
         if result[0].lower() == 'concluída' or result[1].lower() == 'concluída':
             return False
         else:

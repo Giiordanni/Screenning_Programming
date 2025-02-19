@@ -113,7 +113,7 @@ class Activity:
 
 
     @staticmethod
-    def create_student_table(connection, id_student, id_activity):
+    def add_student_to_activity(connection, id_student, id_activity):
         try:
             cursor = connection.cursor()
             query = "INSERT INTO activity_student (id_student, id_activity) VALUES (%s, %s)"
@@ -122,22 +122,21 @@ class Activity:
             return True
         except Error as e:
             print(f"Error creating student table in database: {e}")
+            connection.rollback()
+            return False
         finally:
             cursor.close()
             
 
     @staticmethod
-    def check_student_activity(connection, id_student, id_activity):
+    def is_student_associated_with_activity(connection, id_student, id_activity):
         try:
             cursor = connection.cursor()
             cursor.execute("SELECT id FROM activity_student WHERE id_student = %s AND id_activity = %s", (id_student, id_activity))
-            id = cursor.fetchone()
-            if id:
-                return id
-            else:
-                return None
+            return cursor.fetchone() is not None
         except Error as e:
             print(f"Error getting student activity from database: {e}")
+            return False
         finally:
             cursor.close()
 
@@ -145,37 +144,63 @@ class Activity:
     def check_activity_status_student(connection, id_student, id_activity):
         try:
             cursor = connection.cursor()
-            query = """SELECT ac.status_activity, a.amount_questions, ac.questions_answered_count, a.deadline, a.status_activity 
-                        FROM activity_student ac 
-                        JOIN activity a ON ac.id_activity = a.id_activity
-                        WHERE ac.id_student = %s AND ac.id_activity = %s"""
-            cursor.execute(query, (id_student, id_activity))
-            result = cursor.fetchone()
 
-            if result[1] == result[2] and result[0] == 'Aberta':
-                query = "UPDATE activity_student SET status_activity = 'concluída' WHERE id_student = %s AND id_activity = %s"
-                cursor.execute(query, (id_student, id_activity))
-                connection.commit()
-                return False
+            result = Activity.get_activity_student_status(cursor, id_student, id_activity)
+            
+            if result is None:
+                Activity.add_student_to_activity(connection, id_student, id_activity)
+                result = Activity.get_activity_student_status(cursor, id_student, id_activity)
+
+            if result[1] == result[2] and result[0].lower() == 'aberta':
+               Activity._mark_activity_as_completed(connection, id_student, id_activity)
+               return False
+            
             elif result[0].lower() == 'concluída' or result[4].lower() == 'concluída':
                 return False
-            elif result[2] != result[1] and result[0] == 'Aberta':
+            
+            elif result[2] != result[1] and result[0].lower() == 'aberta':
                 return True
+            
             elif result[3]:
                 deadline_date = datetime.strptime(result[3], '%d/%m/%Y')
                 if deadline_date.date() <= datetime.today().date():
-                    query = "UPDATE activity SET status_activity = 'concluída' WHERE id_activity = %s"
-                    cursor.execute(query, (id_activity, ))
-                    connection.commit()
+                    Activity._mark_activity_as_completed(connection, id_activity)
                     return False
-            else:
-                return None
+                
+            return None
         except Exception as e:
             print(f"Erro: {e}")
             connection.rollback()
             return None
         finally:
             cursor.close()
+
+    #Verifica o status da atividade do aluno
+    @staticmethod
+    def get_activity_student_status(cursor, id_student, id_activity):
+        query = """SELECT ac.status_activity, a.amount_questions, ac.questions_answered_count, a.deadline, a.status_activity 
+                        FROM activity_student ac 
+                        JOIN activity a ON ac.id_activity = a.id_activity
+                        WHERE ac.id_student = %s AND ac.id_activity = %s"""
+        cursor.execute(query, (id_student, id_activity))
+        return cursor.fetchone()
+    
+    #Marca a atividade como concluída
+    @staticmethod
+    def _mark_activity_as_completed(connection, id_student=None, id_activity=None):
+        try:
+            cursor = connection.cursor()
+            if id_student and id_activity:
+                query = "UPDATE activity_student SET status_activity = 'concluída' WHERE id_student = %s AND id_activity = %s"
+                cursor.execute(query, (id_student, id_activity))
+            else:
+                query = "UPDATE activity SET status_activity = 'concluída' WHERE id_activity = %s"
+                cursor.execute(query, (id_activity,))
+            connection.commit()  # Confirma as alterações no banco de dados
+        except Exception as e:
+            print(f"Erro ao marcar atividade como concluída: {e}")
+            connection.rollback()  # Reverte as alterações em caso de erro
+            raise
             
     @staticmethod
     def update_aswered_count_student(connection, id_student, id_activity):
@@ -186,6 +211,8 @@ class Activity:
             return True
         except Error as e:
             print(f"Error updating answered count in database: {e}")
+            connection.rollback()
+            return False
         finally:
             cursor.close()
             

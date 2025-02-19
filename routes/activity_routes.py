@@ -68,6 +68,7 @@ def delete_activity_route(id_activity):
     
 
 @activity_app.route("/api/activity/<id_activity>", methods=["PATCH"])
+@jwt_required()
 def update_activity_route(id_activity):
 
     type_user = get_jwt()["type"]
