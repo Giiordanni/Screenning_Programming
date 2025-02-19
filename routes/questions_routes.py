@@ -36,7 +36,7 @@ def calculate_student_level_routes():
     data = request.json
     question_id = data.get("ID")
     student_answer = data.get("student_answer")
-    id_activity = data.get("id_activity")
+    id_activity = request.args.get("id_activity")
     
     if not question_id or not student_answer or id_activity is None:
         return jsonify({"error": "Parâmetros 'ID' e 'student_answer' são obrigatórios."}), 400
