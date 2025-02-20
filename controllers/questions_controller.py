@@ -88,10 +88,10 @@ def get_status_activity(id_activity):
     connection = db_connection()
     try:
         result = Activity.get_status_activity(connection, id_activity)
-        if result[0].lower() == 'concluída' or result[1].lower() == 'concluída':
-            return False
-        else:
+        if any(status.lower() != 'concluída' for status in result):
             return True
+        else:
+            return False
     except Exception as e:
         print(f"Error getting activity status: {e}")
         return False

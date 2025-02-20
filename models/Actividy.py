@@ -178,10 +178,12 @@ class Activity:
     #Verifica o status da atividade do aluno
     @staticmethod
     def get_activity_student_status(cursor, id_student, id_activity):
-        query = """SELECT ac.status_activity, a.amount_questions, ac.questions_answered_count, a.deadline, a.status_activity 
-                        FROM activity_student ac 
-                        JOIN activity a ON ac.id_activity = a.id_activity
-                        WHERE ac.id_student = %s AND ac.id_activity = %s"""
+        query = """
+            SELECT ac.status_activity, a.amount_questions, ac.questions_answered_count, a.deadline, a.status_activity 
+            FROM activity_student ac 
+            JOIN activity a ON ac.id_activity = a.id_activity
+            WHERE ac.id_student = %s AND ac.id_activity = %s
+        """
         cursor.execute(query, (id_student, id_activity))
         return cursor.fetchone()
     
@@ -221,8 +223,12 @@ class Activity:
         try:
             cursor = connection.cursor()
             cursor.execute("SELECT ac.status_activity, a.status_activity FROM activity a JOIN  activity_student ac ON a.id_activity = ac.id_activity WHERE a.id_activity = %s", (id_activity, ))
-            result = cursor.fetchone()
-            return result
+            result = cursor.fetchall()
+            if result:
+                response = [status for row in result for status in row]
+                return response
+            else:
+                return None
         except Error as e:
             print(f"Error getting status activity from database: {e}")
         finally:
