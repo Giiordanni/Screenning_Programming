@@ -221,7 +221,12 @@ class Activity:
         try:
             cursor = connection.cursor()
             cursor.execute("SELECT ac.status_activity, a.status_activity FROM activity a JOIN  activity_student ac ON a.id_activity = ac.id_activity WHERE a.id_activity = %s", (id_activity, ))
-            return cursor.fetchone()
+            result = cursor.fetchall()
+            if result:
+                response = [ status for row in result for status in row]
+                return response
+            else:
+                return None
         except Error as e:
             print(f"Error getting status activity from database: {e}")
         finally:
