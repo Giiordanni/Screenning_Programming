@@ -33,7 +33,7 @@ def calculate_student_level_routes():
         return jsonify({"error": "Parâmetro 'user_id' é obrigatório."}), 400
     
     # Obtendo a resposta e o ID da questão do corpo da requisição
-    data = request.json
+    data = request.get_json()
     question_id = data.get("ID")
     student_answer = data.get("student_answer")
     id_activity = data.get("id_activity")
