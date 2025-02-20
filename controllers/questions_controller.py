@@ -96,9 +96,7 @@ def get_status_activity(id_activity):
     connection = db_connection()
     try:
         result = Activity.get_status_activity(connection, id_activity)
-        print(result)
         if result[0].lower() == 'concluída' or result[1].lower() == 'concluída':
-            logger.info("chegou aqui amigão")
             return False
         else:
             return True
