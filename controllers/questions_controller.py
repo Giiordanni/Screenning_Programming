@@ -5,6 +5,14 @@ from models.Questions import Questions
 from models.Student import Student
 from models.Actividy import Activity
 import numpy as np
+import logging
+
+# Configuração básica do logger
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+# Criação do logger
+logger = logging.getLogger(__name__)
 
 
 def get_questions_by_level_controller(student_level, id_activity, user_id):
@@ -88,11 +96,14 @@ def get_status_activity(id_activity):
     connection = db_connection()
     try:
         result = Activity.get_status_activity(connection, id_activity)
+        logger.info(f"Status da atividade: {result}")
         if result[0].lower() == 'concluída' or result[1].lower() == 'concluída':
+            logger.info("chegou aqui amigão")
             return False
         else:
             return True
     except Exception as e:
+        logger.error(f"Erro ao obter status da atividade: {e}")
         print(f"Error getting activity status: {e}")
         return False
     finally:
