@@ -5,7 +5,6 @@ from models.Questions import Questions
 from controllers.questions_controller import *
 from controllers.statisc_controller import create_statistc_controller
 
-
 question_app = Blueprint("question_app", __name__)
 
 @question_app.route("/api/question/level", methods=['GET'])
