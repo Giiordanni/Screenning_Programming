@@ -47,11 +47,6 @@ def calculate_student_level_routes():
     if params is None:
         return jsonify({"error": "Parâmetros da questão não encontrados."}), 404
     
-    status_response, status = create_statistc_controller(user_id, id_activity, question_id, is_correct[1])
-
-    # Desempacotando os parâmetros
-    slope, threshold, asymptote = params
-
     status_activity = get_status_activity(id_activity)
     if status_activity is False:
         return jsonify({'error': 'A atividade foi finalizada!'}), 400
@@ -59,6 +54,11 @@ def calculate_student_level_routes():
     activity_student = student_activity(user_id, id_activity)
     if not activity_student:
         return jsonify({"error": "Erro ao processar a atividade do aluno."}), 500
+    
+    status_response, status = create_statistc_controller(user_id, id_activity, question_id, is_correct[1])
+
+    # Desempacotando os parâmetros
+    slope, threshold, asymptote = params
 
     if is_correct[0]:
         new_level = calculate_student_level([1], [[slope, threshold, asymptote]], user_id)
