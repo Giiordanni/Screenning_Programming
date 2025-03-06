@@ -238,17 +238,18 @@ class Activity:
     def get_status_activity_all(connection, id_group):
         cursor = connection.cursor()
         try:
-            cursor.execute("SELECT id_activity, description, status_activity, deadline, amount_questions FROM activity WHERE id_group = %s", (id_group,))
+            cursor.execute("SELECT id_activity, id_content, description, status_activity, deadline, amount_questions FROM activity WHERE id_group = %s", (id_group,))
             result = cursor.fetchall()
             if result:
                 activities = []
                 for row in result:
                     activities.append({
                         "id_activity": row[0],
-                        "description": row[1],
-                        "status_activity": row[2],
-                        "deadline": row[3],
-                        "amount_questions": row[4]
+                        "id_content": row[1],
+                        "description": row[2],
+                        "status_activity": row[3],
+                        "deadline": row[4],
+                        "amount_questions": row[5]
                     })
                 return activities
             else:
@@ -257,3 +258,4 @@ class Activity:
             print(f"Error getting status activity from database: {e}")
         finally:
             cursor.close()
+

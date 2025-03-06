@@ -44,14 +44,22 @@ def delete_student_from_group_controller(current_user_id, group_id, student_id):
     connection = db_connection()
     if not connection:
         return {"message": "Falha ao conectar com o banco de dados!"}, 500
+    
     try:
-        if int(current_user_id) !=Group.get_teacher_id_from_group_service(connection, group_id): 
+        id_teacher = Group.get_teacher_id_from_group_service(connection, group_id)
+        if int(current_user_id) != id_teacher: 
             return {"message": "Sem permissão para deletar"}, 400
-        Group.delete_student_from_group_service(connection, group_id, student_id)
+        
+        success, message = Group.delete_student_from_group_service(connection, group_id, student_id)
+        if not success:
+            return {"message": message}, 500
+
         return {"message": "Usuário deletado do grupo com sucesso!"}, 200
     
     except Exception as e:
         return {"message": f"Erro ao deletar o usuário: {e}"}, 500
+    finally:
+        connection.close()
 
 def add_student_to_group_controller(group_id, student_id):
     connection = db_connection()
