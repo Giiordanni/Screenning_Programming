@@ -43,19 +43,6 @@ def get_activity_controller(data):
         return {"message": "Atividade não encontrada"}, 404
     
 
-    
-def get_all_activity_controller(data):
-    id_group = data.get("id_group")
-
-    connection = db_connection()
-
-    result = Activity.get_all_activity_model(connection, id_group)
-    if result is not None:
-        return {"activity": result}, 200
-    else:
-        return {"message": "Atividade não encontrada"}, 404
-    
-
 def delete_activity_controller(id_activity):
     connection = db_connection()
     result = Activity.delete_activity_model(connection, id_activity)

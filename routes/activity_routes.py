@@ -36,18 +36,6 @@ def get_activity_route():
     return jsonify(response), status_code
 
 
-@activity_app.route("/api/activity/all", methods=["GET"])
-@jwt_required()
-def get_all_activity_route():
-    id_group = request.args.get('id_group')
-    
-    data =  { "id_group": id_group }
-
-    response, status_code = get_all_activity_controller(data)
-    
-    return jsonify(response), status_code
-
-
 @activity_app.route("/api/activity/<id_activity>", methods=["DELETE"])
 @jwt_required()
 def delete_activity_route(id_activity):

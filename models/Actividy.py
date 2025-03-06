@@ -41,21 +41,6 @@ class Activity:
             connection.close()
 
 
-    def get_all_activity_model(connection, id_group):
-        try:
-            cursor = connection.cursor()
-            cursor.execute("SELECT * FROM activity WHERE id_group = %s" ,(id_group,))
-
-            result = cursor.fetchall()
-            
-            return result
-        except Error as e:
-            print(f"Error getting activity from database: {e}")
-        finally:
-            cursor.close()
-            connection.close()
-
-
     def delete_activity_model(connection, id_activity):
         try:
             cursor = connection.cursor()
