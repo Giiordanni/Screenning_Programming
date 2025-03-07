@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from controllers.statisc_controller import *
-from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
+from flask_jwt_extended import jwt_required
 
 statistic_app = Blueprint("statistic_app", __name__)
 
