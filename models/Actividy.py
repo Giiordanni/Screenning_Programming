@@ -114,42 +114,24 @@ class Activity:
             
 
     @staticmethod
-    def is_student_associated_with_activity(connection, id_student, id_activity):
-        try:
-            cursor = connection.cursor()
-            cursor.execute("SELECT id FROM activity_student WHERE id_student = %s AND id_activity = %s", (id_student, id_activity))
-            return cursor.fetchone() is not None
-        except Error as e:
-            print(f"Error getting student activity from database: {e}")
-            return False
-        finally:
-            cursor.close()
-
-    @staticmethod
     def check_activity_status_student(connection, id_student, id_activity):
         try:
-            cursor = connection.cursor()
-
-            result = Activity.get_activity_student_status(cursor, id_student, id_activity)
+            result = Activity.get_activity_student_status(connection, id_student, id_activity)
             
             if result is None:
                 Activity.add_student_to_activity(connection, id_student, id_activity)
-                result = Activity.get_activity_student_status(cursor, id_student, id_activity)
+                result = Activity.get_activity_student_status(connection, id_student, id_activity)
 
             if result[3]:
                 deadline_date = datetime.strptime(result[3], '%d/%m/%Y')
                 if deadline_date.date() <= datetime.today().date():
                     Activity._mark_activity_as_completed(connection, id_activity)
                     return False
-
-            if result[1] == result[2] and result[0].lower() == 'aberta':
-               Activity._mark_activity_as_completed(connection, id_student, id_activity)
-               return False
             
-            elif result[0].lower() == 'concluída' or result[4].lower() == 'concluída':
+            if result[0].lower() == 'concluída' or result[4].lower() == 'concluída':
                 return False
             
-            elif result[2] != result[1] and result[0].lower() == 'aberta':
+            if result[2] != result[1] and result[0].lower() == 'aberta':
                 return True
                 
             return None
@@ -157,14 +139,14 @@ class Activity:
             print(f"Erro: {e}")
             connection.rollback()
             return None
-        finally:
-            cursor.close()
+        
 
     #Verifica o status da atividade do aluno
     @staticmethod
-    def get_activity_student_status(cursor, id_student, id_activity):
+    def get_activity_student_status(connection, id_student, id_activity):
+        cursor = connection.cursor()
         query = """
-            SELECT ac.status_activity, a.amount_questions, ac.questions_answered_count, a.deadline, a.status_activity 
+            SELECT ac.status_activity, a.amount_questions, ac.questions_answered_count, a.deadline, a.status_activity, ac.id
             FROM activity_student ac 
             JOIN activity a ON ac.id_activity = a.id_activity
             WHERE ac.id_student = %s AND ac.id_activity = %s
