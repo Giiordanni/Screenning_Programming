@@ -1,10 +1,12 @@
 from flask import Blueprint, request, jsonify
 from controllers.statisc_controller import *
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 
 statistic_app = Blueprint("statistic_app", __name__)
 
 
 @statistic_app.route('/api/activity/<id_student>', methods=['GET'])
+@jwt_required
 def get_activity_statistics_routes(id_student):
     try:
         id_activity = request.args.get('id_activity')
@@ -15,6 +17,7 @@ def get_activity_statistics_routes(id_student):
 
 
 @statistic_app.route('/api/activity/all', methods=['GET'])
+@jwt_required
 def get_all_statistics_routes():
     try:
         id_activity = request.args.get('id_activity')
