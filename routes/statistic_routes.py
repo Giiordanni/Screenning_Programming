@@ -5,10 +5,11 @@ from flask_jwt_extended import jwt_required
 statistic_app = Blueprint("statistic_app", __name__)
 
 
-@statistic_app.route('/api/activity/<id_student>', methods=['GET'])
+@statistic_app.route('/api/statistic', methods=['GET'])
 @jwt_required
-def get_activity_statistics_routes(id_student):
+def get_activity_statistics_routes():
     try:
+        id_student = request.args.get("id_student")
         id_activity = request.args.get('id_activity')
         response = group_answer_by_id_student_controller(id_student,id_activity)
         return jsonify(response), 200
@@ -16,7 +17,7 @@ def get_activity_statistics_routes(id_student):
         return jsonify({"error": f"Erro ao buscar estatísticas: {str(e)}"}), 500
 
 
-@statistic_app.route('/api/activity/all', methods=['GET'])
+@statistic_app.route('/api/statisc/all', methods=['GET'])
 @jwt_required
 def get_all_statistics_routes():
     try:
