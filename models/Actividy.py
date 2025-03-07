@@ -136,6 +136,12 @@ class Activity:
                 Activity.add_student_to_activity(connection, id_student, id_activity)
                 result = Activity.get_activity_student_status(cursor, id_student, id_activity)
 
+            if result[3]:
+                deadline_date = datetime.strptime(result[3], '%d/%m/%Y')
+                if deadline_date.date() <= datetime.today().date():
+                    Activity._mark_activity_as_completed(connection, id_activity)
+                    return False
+
             if result[1] == result[2] and result[0].lower() == 'aberta':
                Activity._mark_activity_as_completed(connection, id_student, id_activity)
                return False
@@ -145,12 +151,6 @@ class Activity:
             
             elif result[2] != result[1] and result[0].lower() == 'aberta':
                 return True
-            
-            elif result[3]:
-                deadline_date = datetime.strptime(result[3], '%d/%m/%Y')
-                if deadline_date.date() <= datetime.today().date():
-                    Activity._mark_activity_as_completed(connection, id_activity)
-                    return False
                 
             return None
         except Exception as e:
