@@ -24,8 +24,7 @@ class Statistic:
     def group_answer_by_id_student_service(connection, id_student, id_activity):
         try:
             if connection.is_connected():
-                query = """SELECT s.id_question, s.         
-                            answer_correct, q.skill_question, a.nameStudent
+                query = """SELECT s.id_question, s.answer_correct, q.skill_question, a.nameStudent, q.level_questions
                             FROM statistic s
                             JOIN questions q ON s.id_question = q.id_questions
                             JOIN aluno a ON s.id_student = a.id

@@ -16,8 +16,6 @@ def calculate_percentage_by_skill(skill_stats):
     return skill_percentage
 
 
-
-
 def create_statistc_controller(id_student, id_activity, id_question, answer_correct):
     connection = db_connection()
     try:
@@ -36,38 +34,64 @@ def group_answer_by_id_student_controller(id_student, id_activity):
     if not questions:
         return { "message": "Não há respostas para essa atividade" }
     
-    skill_stats = {}
+    level_stats = {}
 
     for question in questions:
+        level = question[4]
         skill = question[2]
         correct = question[1] == 1
 
-        if skill not in skill_stats:
-            skill_stats[skill] = {
-                'total_questions': 0,
-                'correct_answers': 0
+        if level not in level_stats:
+            level_stats[level] = {}
+
+        if skill not in level_stats[level]:
+            level_stats[level][skill] = {
+                "total_questions": 0,
+                "correct_answers": 0
             }
 
-        skill_stats[skill]['total_questions'] += 1
+        level_stats[level][skill]['total_questions'] += 1
         if correct:
-            skill_stats[skill]['correct_answers'] += 1
+            level_stats[level][skill]['correct_answers'] += 1
     
 
-    total_questions = sum(stats["total_questions"] for stats in skill_stats.values())
-    correct_answers = sum(stats["correct_answers"] for stats in skill_stats.values())
-    skill_percentage = calculate_percentage_by_skill(skill_stats)
-    percentage_overall = calculate_overall_percentagem(correct_answers, total_questions)
+    total_questions = sum(
+        stats["total_questions"] 
+        for level in level_stats.values()
+        for stats in level.values()
+    )
+    correct_answers = sum(
+        stats["correct_answers"] 
+        for level in level_stats.values()
+        for stats in level.values()
+    )
+
+    percentage_overall  = calculate_overall_percentagem(correct_answers, total_questions)
+
+    percentagem_level = {
+        level: {
+            "percentagem": round(
+            sum(stats['correct_answers'] for stats in level_skills.values()) / 
+            sum(stats['total_questions'] for stats in level_skills.values()) * 100, 2
+        ),
+            "Skills":{
+            skill: round((stats['correct_answers'] / stats['total_questions']) * 100, 2)
+            for skill, stats in level_skills.items()
+        }
+    }
+       for level, level_skills in level_stats.items()
+    }
 
     percentage_overall = round(percentage_overall, 2)
-    skill_percentage = {skill: round(percentage, 2) for skill, percentage in skill_percentage.items()}
 
     return {
         "name_student": questions[0][3],
         "total_questions": total_questions,
         "correct_answers": correct_answers,
         "percentage_overall": percentage_overall,
-        "skill_stats": skill_stats,
-        "skill_percentage": skill_percentage
+        "level_stats": level_stats,
+        "percentagem_level": percentagem_level
+        
     }
 
 def get_all_statistics_by_activity(id_activity):
