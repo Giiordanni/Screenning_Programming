@@ -174,8 +174,6 @@ class Activity:
                 cursor.execute(query, (id_student, id_activity))
             else:
                 cursor.execute("UPDATE activity SET status_activity = 'concluída' WHERE id_activity = %s", (id_activity,))
-
-                cursor.execute("UPDATE activity_student SET status_activity = 'incompleta' WHERE id_activity = %s", (id_activity,))
                 
             connection.commit()  # Confirma as alterações no banco de dados
         except Exception as e:
@@ -222,9 +220,16 @@ class Activity:
         try:
             cursor.execute("SELECT id_activity, id_content, description, status_activity, deadline, amount_questions FROM activity WHERE id_group = %s", (id_group,))
             result = cursor.fetchall()
+
             if result:
                 activities = []
                 for row in result:
+                    deadline_date = datetime.strptime(row[4], '%d/%m/%Y')
+                    if deadline_date.date() <= datetime.today().date():
+                        Activity._mark_activity_as_completed(connection, id_activity=row[0])
+                        cursor.execute("SELECT id_activity, id_content, description, status_activity, deadline, amount_questions FROM activity WHERE id_group = %s", (id_group,))
+                        result = cursor.fetchall()
+                        
                     activities.append({
                         "id_activity": row[0],
                         "id_content": row[1],
@@ -240,4 +245,9 @@ class Activity:
             print(f"Error getting status activity from database: {e}")
         finally:
             cursor.close()
+
+
+
+
+   
 
