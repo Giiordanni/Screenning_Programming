@@ -69,14 +69,23 @@ class Activity:
                 fields.append('deadline = %s')
                 values.append(data['deadline'])
 
+                new_deadline_date = datetime.strptime(data['deadline'], '%d/%m/%Y')
+                if new_deadline_date.date() >= datetime.today().date():
+                    fields.append('status_activity = %s')
+                    values.append('Aberta')
+                else:
+                    fields.append('status_activity = %s')
+                    values.append('concluída')
+
             values.append(id_activity)
-            sql_query = f"UPDATE activity SET {', '.join(fields)} WHERE id_activity = %s"
+            sql_query = "UPDATE activity SET " + ', '.join(fields) + " WHERE id_activity = %s"
             cursor.execute(sql_query, tuple(values))
             connection.commit()
 
             return True
         except Error as e:
             print(f"Error updating activity in database: {e}")
+            cursor.rollback()
         finally:
             cursor.close()
             connection.close()
@@ -166,7 +175,7 @@ class Activity:
             else:
                 cursor.execute("UPDATE activity SET status_activity = 'concluída' WHERE id_activity = %s", (id_activity,))
 
-                cursor.execute("UPDATE activity_student SET status_activity = 'concluída' WHERE id_activity = %s", (id_activity,))
+                cursor.execute("UPDATE activity_student SET status_activity = 'incompleta' WHERE id_activity = %s", (id_activity,))
                 
             connection.commit()  # Confirma as alterações no banco de dados
         except Exception as e:
