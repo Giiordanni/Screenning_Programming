@@ -133,7 +133,7 @@ class Activity:
 
             if result[3]:
                 deadline_date = datetime.strptime(result[3], '%d/%m/%Y')
-                if deadline_date.date() <= datetime.today().date():
+                if deadline_date.date() < datetime.today().date():
                     Activity._mark_activity_as_completed(connection, id_activity=id_activity)
                     return False
             
@@ -225,11 +225,11 @@ class Activity:
                 activities = []
                 for row in result:
                     deadline_date = datetime.strptime(row[4], '%d/%m/%Y')
-                    if deadline_date.date() <= datetime.today().date():
+                    if deadline_date.date() < datetime.today().date():
                         Activity._mark_activity_as_completed(connection, id_activity=row[0])
                         cursor.execute("SELECT id_activity, id_content, description, status_activity, deadline, amount_questions FROM activity WHERE id_group = %s", (id_group,))
                         result = cursor.fetchall()
-                        
+
                     activities.append({
                         "id_activity": row[0],
                         "id_content": row[1],
