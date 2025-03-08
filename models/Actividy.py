@@ -119,13 +119,13 @@ class Activity:
             result = Activity.get_activity_student_status(connection, id_student, id_activity)
             
             if result is None:
-                Activity.add_student_to_activity(connection, id_student, id_activity)
+                Activity.add_student_to_activity(connection, id_student=id_student, id_activity=id_activity)
                 result = Activity.get_activity_student_status(connection, id_student, id_activity)
 
             if result[3]:
                 deadline_date = datetime.strptime(result[3], '%d/%m/%Y')
                 if deadline_date.date() <= datetime.today().date():
-                    Activity._mark_activity_as_completed(connection, id_activity)
+                    Activity._mark_activity_as_completed(connection, id_activity=id_activity)
                     return False
             
             if result[0].lower() == 'concluída' or result[4].lower() == 'concluída':

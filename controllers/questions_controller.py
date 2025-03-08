@@ -75,8 +75,7 @@ def student_activity(id_student, id_activity):
         student_activity_status = Activity.get_activity_student_status(connection, id_student, id_activity)
         if student_activity_status and student_activity_status[5]:
             response = Activity.update_aswered_count_student(connection, id_student, id_activity)
-            result = Activity.get_activity_student_status(connection, id_student, id_activity)
-            if result[1] == result[2] and result[0].lower() == 'aberta':
+            if student_activity_status[1] == student_activity_status[2] and student_activity_status[0].lower() == 'aberta':
                Activity._mark_activity_as_completed(connection, id_student, id_activity)
             return response
         else:
