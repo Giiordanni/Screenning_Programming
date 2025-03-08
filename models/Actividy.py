@@ -159,17 +159,23 @@ class Activity:
     def _mark_activity_as_completed(connection, id_student=None, id_activity=None):
         try:
             cursor = connection.cursor()
+
             if id_student and id_activity:
                 query = "UPDATE activity_student SET status_activity = 'concluída' WHERE id_student = %s AND id_activity = %s"
                 cursor.execute(query, (id_student, id_activity))
             else:
-                query = "UPDATE activity SET status_activity = 'concluída' WHERE id_activity = %s"
-                cursor.execute(query, (id_activity,))
+                cursor.execute("UPDATE activity SET status_activity = 'concluída' WHERE id_activity = %s", (id_activity,))
+
+                cursor.execute("UPDATE activity_student SET status_activity = 'concluída' WHERE id_activity = %s", (id_activity,))
+                
             connection.commit()  # Confirma as alterações no banco de dados
         except Exception as e:
             print(f"Erro ao marcar atividade como concluída: {e}")
             connection.rollback()  # Reverte as alterações em caso de erro
             raise
+        finally:
+            if cursor:
+                cursor.close()
             
     @staticmethod
     def update_aswered_count_student(connection, id_student, id_activity):
