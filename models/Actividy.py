@@ -245,9 +245,3 @@ class Activity:
             print(f"Error getting status activity from database: {e}")
         finally:
             cursor.close()
-
-
-
-
-   
-

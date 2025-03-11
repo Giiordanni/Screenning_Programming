@@ -1,10 +1,8 @@
 from flask import request, jsonify, Blueprint
+from flask_jwt_extended import get_jwt_identity, get_jwt, jwt_required
 
 from controllers.group_controller import *
 
-
-from flask_jwt_extended import get_jwt_identity, get_jwt
-from flask_jwt_extended import jwt_required
 
 group_app = Blueprint("group_app", __name__)
 
@@ -28,6 +26,20 @@ def add_student_to_group_route(groupId):
     studentId = data["studentId"]
     response, status_code = add_student_to_group_controller(groupId, studentId)
     return jsonify(response), status_code
+
+@group_app.route("/api/group/code", methods=["POST"])
+@jwt_required()
+def add_student_to_group_code():
+    data = request.get_json()
+    id_student = get_jwt_identity()
+    type_user = get_jwt()["type"]
+    
+    if(type_user != "student"):
+        return jsonify({"error": "Invalid user type"})
+    
+    response, status_code = add_studeny_to_group_code(id_student, data)
+    return jsonify(response, status_code)
+
 
 @group_app.route("/api/group/student/<id_group>", methods=["GET"])
 @jwt_required()
@@ -65,8 +77,14 @@ def delete_group_route(groupId):
 @jwt_required()
 def get_groups_from_teacher_route():
     teacherId = get_jwt_identity()
+    type_user = get_jwt()["type"]
+    
+    if(type_user != "teacher"):
+        return jsonify({"error": "Invalid user type"}), 400
+
     if not teacherId:
         return {"message": "Invalid token data"}, 400
+    
     response, status_code = get_group_by_teacher_id_controller(teacherId)
     return jsonify(response), status_code
 

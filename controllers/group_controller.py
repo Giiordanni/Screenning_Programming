@@ -4,7 +4,8 @@ from flask import request
 from db.firebase import *
 from models.Group import Group
 from db.bd_mysql import db_connection
-
+import random
+import string
 
 # from middleware.global_middleware import (
 # verify_email_registered, verify_user
@@ -19,6 +20,8 @@ def create_group_controller(teacherId, data):
     period_verification = period.split(".")[1]
     if int(period_verification) > 2 and int(period_verification) < 1:
         return {"message": "Período inválido"}, 400
+    
+    code_group = ''.join(random.choices(string.ascii_letters + string.digits, k=6))
 
     connection = db_connection()
     if connection:
@@ -26,9 +29,9 @@ def create_group_controller(teacherId, data):
         group = Group(
             id_teacher,
             name,
-            period
+            period,
+            code_group
             )
-        print(id_teacher)
         inserted_id = group.create_group_service(connection)
         connection.close()
         
@@ -80,6 +83,27 @@ def add_student_to_group_controller(group_id, student_id):
         else:
             return {"message": "Falha ao adicionar estudante ao grupo"}, 500
 
+    except Exception as e:
+        print(f"Erro ao adicionar estudante ao grupo: {e}")
+        return {"message": "Erro interno do servidor"}, 500
+
+    finally:
+        connection.close()
+
+def add_studeny_to_group_code(id_student, data):
+    connection = db_connection()
+    try:
+        code_group = data.get("code_to_group")
+        group_id = Group.get_group_code(connection, code_group)
+                
+        if group_id is not None:
+            inserted_id = Group.add_student_to_group_service(connection, group_id, id_student)
+
+        if inserted_id is not None:
+            return {"message": "Estudante adicionado ao grupo"}, 200
+        else:
+            return {"message": "Falha ao adicionar estudante ao grupo"}, 500
+        
     except Exception as e:
         print(f"Erro ao adicionar estudante ao grupo: {e}")
         return {"message": "Erro interno do servidor"}, 500
@@ -160,3 +184,5 @@ def upload_image_group_controller(image_url, group_id):
             raise Exception(f"Error uploading student's image: {str(e)}")
     else:
         raise Exception("Database connection failed.")
+    
+
