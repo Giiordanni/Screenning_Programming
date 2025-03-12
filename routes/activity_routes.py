@@ -79,9 +79,30 @@ def update_activity_route(id_activity):
 @jwt_required()
 def complete_activity():
     
+    type_user = get_jwt()["type"]
+    if(type_user != "teacher"):
+        return jsonify({"error": "Invalid user type"}), 400
+    
     id_group = request.args.get('id_group')
     if not id_group:
         return jsonify({"error": "Parâmetro 'id_group' é obrigatório."}), 400
 
     result, status_code = status_activity_all(id_group)
     return jsonify(result), status_code
+
+
+@activity_app.route('/api/activity/student/all', methods=['GET'])
+@jwt_required()
+def complete_activity_student():
+    
+    type_user = get_jwt()["type"]
+    if(type_user != "student"):
+        return jsonify({"error": "Invalid user type"}), 400
+
+    id_student = get_jwt_identity()
+    id_group = request.args.get('id_group')
+    if not id_group:
+        return jsonify({"error": "Parâmetro 'id_group' é obrigatório."}), 400
+
+    result = student_activity_status(id_student, id_group)
+    return jsonify(result), 200

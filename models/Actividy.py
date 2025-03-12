@@ -155,7 +155,9 @@ class Activity:
     def get_activity_student_status(connection, id_student, id_activity):
         cursor = connection.cursor()
         query = """
-            SELECT ac.status_activity, a.amount_questions, ac.questions_answered_count, a.deadline, a.status_activity, ac.id
+            SELECT ac.status_activity AS student_status_activity, 
+            a.amount_questions, ac.questions_answered_count, a.deadline, 
+            a.status_activity AS activity_status_activity, ac.id
             FROM activity_student ac 
             JOIN activity a ON ac.id_activity = a.id_activity
             WHERE ac.id_student = %s AND ac.id_activity = %s
@@ -215,26 +217,45 @@ class Activity:
             cursor.close()
     
     
-    def get_status_activity_all(connection, id_group):
+    def get_status_activity_all(connection, id_group, id_student=None):
         cursor = connection.cursor()
+        activities = []
         try:
-            cursor.execute("SELECT id_activity, id_content, description, status_activity, deadline, amount_questions FROM activity WHERE id_group = %s", (id_group,))
+            if id_student:
+                query =  """SELECT a.id_activity, a.id_content, a.description, 
+                            ac.status_activity AS student_activity_status,
+                            a.deadline, a.amount_questions
+                            FROM activity a 
+                            LEFT JOIN activity_student ac 
+                            ON a.id_activity = ac.id_activity AND ac.id_student = %s
+                            WHERE a.id_group = %s"""
+                
+                cursor.execute(query, (id_student, id_group))
+            
+            else: 
+                query = "SELECT id_activity, id_content, description, status_activity, deadline, amount_questions FROM activity WHERE id_group = %s"
+                cursor.execute(query, (id_group,))
+            
             result = cursor.fetchall()
 
             if result:
-                activities = []
                 for row in result:
                     deadline_date = datetime.strptime(row[4], '%d/%m/%Y')
                     if deadline_date.date() < datetime.today().date():
                         Activity._mark_activity_as_completed(connection, id_activity=row[0])
-                        cursor.execute("SELECT id_activity, id_content, description, status_activity, deadline, amount_questions FROM activity WHERE id_group = %s", (id_group,))
+                        if id_student:
+                            status_activity = "student_activity_status"
+                            cursor.execute(query, (id_student, id_group))
+                        else:
+                            status_activity = "status_activity"
+                            cursor.execute(query, (id_group,))
                         result = cursor.fetchall()
 
                     activities.append({
                         "id_activity": row[0],
                         "id_content": row[1],
                         "description": row[2],
-                        "status_activity": row[3],
+                        status_activity: row[3] if row[3] != None else "Não iniciada",
                         "deadline": row[4],
                         "amount_questions": row[5]
                     })

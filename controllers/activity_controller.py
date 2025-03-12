@@ -87,3 +87,18 @@ def status_activity_all(id_group):
         return {"message": "Erro ao recuperar atividades"}, 500
     finally:
         connection.close()
+
+
+def student_activity_status(id_student, id_group):
+    connection = db_connection()
+    try:
+        response = Activity.get_status_activity_all(connection, id_group, id_student=id_student)
+        if response:
+            return response, 200
+        else:
+            return {"message": "Atividade não encontrada"}, 404
+    except Exception as e:
+        print(f"Error retrieving activities: {e}")
+        return {"message": "Erro ao recuperar atividades"}, 500
+    finally:
+        connection.close()
