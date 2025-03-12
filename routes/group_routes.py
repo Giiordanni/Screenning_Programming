@@ -24,20 +24,27 @@ def create_group_route():
 def add_student_to_group_route(groupId):
     data = request.get_json()
     studentId = data["studentId"]
-    response, status_code = add_student_to_group_controller(groupId, studentId)
+    type_user = get_jwt()["type"]
+    
+    if type_user != "teacher":
+        return jsonify({"error": "Invalid user type"}), 400
+    
+    response, status_code = add_student_to_group_controller(studentId, group_id=groupId)
     return jsonify(response), status_code
 
 @group_app.route("/api/group/code", methods=["POST"])
 @jwt_required()
 def add_student_to_group_code():
     data = request.get_json()
+    code_group = data.get("code_to_group")
+
     id_student = get_jwt_identity()
     type_user = get_jwt()["type"]
     
     if(type_user != "student"):
         return jsonify({"error": "Invalid user type"})
     
-    response, status_code = add_studeny_to_group_code(id_student, data)
+    response, status_code = add_student_to_group_controller(id_student, code=code_group)
     return jsonify(response, status_code)
 
 

@@ -111,14 +111,12 @@ class Group:
     def add_student_to_group_service(connection, group_id, student_id):
         try:
             with connection.cursor() as cursor:
-                print(f"Adding student with ID {student_id} to group with ID {group_id}")
                 cursor.execute(
                     "INSERT INTO student_group (id_aluno, id_grupo) VALUES (%s, %s)",
                     (student_id, group_id)
                 )
                 connection.commit()
                 inserted_id = cursor.lastrowid
-                print(f"Inserted ID: {inserted_id}")
                 return inserted_id
         except Exception as e:
             print(f"Error adding student to group: {e}")

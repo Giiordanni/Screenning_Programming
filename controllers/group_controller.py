@@ -64,59 +64,44 @@ def delete_student_from_group_controller(current_user_id, group_id, student_id):
     finally:
         connection.close()
 
-def add_student_to_group_controller(group_id, student_id):
+def add_student_to_group_controller(student_id, group_id = None, code = None):
     connection = db_connection()
-
     idstudent = int(student_id)
+    
     try:
-        group, students = Group.get_students_from_group_service(connection, group_id)
+        if group_id is None and code is not None:
+            group_id = Group.get_group_code(connection, code)
 
+        if group_id is None:
+            return {"message": "Grupo não encontrado"}, 404
+        
+        teacher, students = Group.get_students_from_group_service(connection, group_id)
         if students is not None:
-            for i in range(len(students)):
-                if students[i]["idStudent"] == idstudent:
+            for student in students:
+                if str(student["idStudent"]) == str(idstudent):
                     return {"message": "Estudante já está no grupo"}, 400
 
         inserted_id = Group.add_student_to_group_service(connection, group_id, student_id)
-
-        if inserted_id is not None:
-            return {"message": "Estudante adicionado ao grupo"}, 200
-        else:
-            return {"message": "Falha ao adicionar estudante ao grupo"}, 500
-
-    except Exception as e:
-        print(f"Erro ao adicionar estudante ao grupo: {e}")
-        return {"message": "Erro interno do servidor"}, 500
-
-    finally:
-        connection.close()
-
-def add_studeny_to_group_code(id_student, data):
-    connection = db_connection()
-    try:
-        code_group = data.get("code_to_group")
-        group_id = Group.get_group_code(connection, code_group)
-                
-        if group_id is not None:
-            inserted_id = Group.add_student_to_group_service(connection, group_id, id_student)
-
-        if inserted_id is not None:
-            return {"message": "Estudante adicionado ao grupo"}, 200
-        else:
-            return {"message": "Falha ao adicionar estudante ao grupo"}, 500
         
+        if inserted_id is not None:
+            return {"message": "Estudante adicionado ao grupo"}, 200
+        else:
+            return {"message": "Falha ao adicionar estudante ao grupo"}, 500
+    
     except Exception as e:
         print(f"Erro ao adicionar estudante ao grupo: {e}")
         return {"message": "Erro interno do servidor"}, 500
 
     finally:
         connection.close()
+
 
 def get_students_from_group_controller(id_group,num_pag):
     connection = db_connection()
     start_index = (int(num_pag) - 1) * 5
     end_index = start_index + 5
 
-    teacher,students = Group.get_students_from_group_service(connection,id_group)
+    teacher, students = Group.get_students_from_group_service(connection, id_group)
     
     students = students[start_index:end_index]
 
