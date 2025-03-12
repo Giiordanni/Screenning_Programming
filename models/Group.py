@@ -1,19 +1,19 @@
 from mysql.connector import Error
 
 class Group:
-    def __init__(self, id_teacher, title, period):
+    def __init__(self, id_teacher, title, period, code_group):
         self.id_teacher = id_teacher
         self.title = title
         self.period = period
+        self.code_group = code_group
         #self.students = students if students is not None else []
 
     def create_group_service(self, connection):
         try:
             cursor = connection.cursor()
-            cursor.execute("INSERT INTO group_table (id_teacher, title, period) VALUES (%s, %s, %s)",
-                           (self.id_teacher, self.title, self.period))
+            cursor.execute("INSERT INTO group_table (id_teacher, title, period, code) VALUES (%s, %s, %s, %s)",
+                (self.id_teacher, self.title, self.period, self.code_group))
             connection.commit()
-            print("Group saved successfully")
             inserted_id = cursor.lastrowid 
             return inserted_id
             
@@ -28,7 +28,7 @@ class Group:
     def get_students_from_group_service(connection, id_group):
         with connection.cursor() as cursor:
             query = """
-                SELECT p.nameTeacher, e.nameStudent, g.title, g.period, e.id, e.registrationStudent
+                SELECT p.nameTeacher, e.nameStudent, g.title, g.period, e.id, e.registrationStudent, g.code
                 FROM 
                     group_table g
                 JOIN 
@@ -55,7 +55,8 @@ class Group:
             teacher = {
                 "nameTeacher": results[0][0],
                 "title": results[0][2],
-                "period": results[0][3]
+                "period": results[0][3],
+                "code": results[0][6]
             }
 
             students = [
@@ -97,19 +98,25 @@ class Group:
         teacherID = cursor.fetchone()
         cursor.close()
         return teacherID[0]
+    
+    @staticmethod
+    def get_group_code(connection, code_group):
+        cursor = connection.cursor()
+        cursor.execute("SELECT id_grupo FROM group_table WHERE code = %s", (code_group, ))
+        id_group = cursor.fetchone()
+        cursor.close()
+        return id_group[0]
 
     @staticmethod
     def add_student_to_group_service(connection, group_id, student_id):
         try:
             with connection.cursor() as cursor:
-                print(f"Adding student with ID {student_id} to group with ID {group_id}")
                 cursor.execute(
                     "INSERT INTO student_group (id_aluno, id_grupo) VALUES (%s, %s)",
                     (student_id, group_id)
                 )
                 connection.commit()
                 inserted_id = cursor.lastrowid
-                print(f"Inserted ID: {inserted_id}")
                 return inserted_id
         except Exception as e:
             print(f"Error adding student to group: {e}")
@@ -139,7 +146,8 @@ class Group:
                         {
                             "group_id": row[0],
                             "title": row[2],
-                            "period": row[3]
+                            "period": row[3],
+                            "code": row[5]
                         }
                         for row in results
                 ]

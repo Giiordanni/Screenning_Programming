@@ -6,27 +6,38 @@ from datetime import datetime
 
 def create_activity_controller(data):
     connection = db_connection()
+    try:
+        id_group = data.get("id_group")
+        id_content = data.get("id_content")
+        description = data.get("description")
+        deadline = data.get("deadline")
+        amount_questions = data.get("amount_questions")
 
-    id_group = data.get("id_group")
-    id_content = data.get("id_content")
-    description = data.get("description")
-    deadline = data.get("deadline")
-    amount_questions = data.get("amount_questions")
+        if amount_questions is not None and amount_questions < 20:
+            return {"message": "Quantidade de questões inválida. Valor mínimo é 20 questões"}, 400
 
-    if amount_questions is not None and amount_questions < 20:
-        return {"message": "Quantidade de questões inválida. Valor mínimo é 20 questões"}, 400
+        date_now = datetime.now()
+        deadline_date = datetime.strptime(deadline, '%d/%m/%Y')
 
-    date_now = datetime.now()
-    deadline_date = datetime.strptime(deadline, '%d/%m/%Y')
+        if deadline_date.date() < date_now.date():
+            return {"message": "Data limite inválida"}, 400
+        
+        inserted_id = Activity.create_activity_service(connection, id_group, id_content, description, deadline, amount_questions)
 
-    if deadline_date.date() < date_now.date():
-        return {"message": "Data limite inválida"}, 400
-    
-    inserted_id = Activity.create_activity_service(connection, id_group, id_content, description, deadline, amount_questions)
-    if inserted_id is not None:
-        return {"message": 'Atividade criada com sucesso!', "activity_id": inserted_id}, 200
-    else:
-        return {"message": "Falha ao criar atividade"}, 500
+        if inserted_id is not None:
+            student_group_ids = Activity.get_id_student_by_group(connection, id_group)
+            response = Activity.add_student_to_activity(connection, student_group_ids, inserted_id)
+            if response:
+                return {"message": 'Atividade criada com sucesso!', "activity_id": inserted_id}, 200
+            else:
+                return {"message": "Falha ao adicionar alunos a atividade"}, 500
+        else:
+            return {"message": "Falha ao criar atividade"}, 500
+    except Exception as e:
+        print(f"Error creating activity: {e}")
+        return {"message": "Erro ao criar atividade"}, 500
+    finally:
+        connection.close()
     
     
 

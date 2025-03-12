@@ -23,7 +23,6 @@ class Activity:
         
         finally:
             cursor.close()
-            connection.close()
 
 
     def get_activity_model(connection, id_content, id_group):
@@ -107,11 +106,17 @@ class Activity:
 
 
     @staticmethod
-    def add_student_to_activity(connection, id_student, id_activity):
+    def add_student_to_activity(connection, student_ids, id_activity):
+        cursor = connection.cursor()
         try:
-            cursor = connection.cursor()
-            query = "INSERT INTO activity_student (id_student, id_activity) VALUES (%s, %s)"
-            cursor.execute(query, (id_student, id_activity))
+            if isinstance(student_ids, list):
+                values = [(id_student, id_activity) for id_student in student_ids]
+                query = "INSERT INTO activity_student (id_student, id_activity) VALUES (%s, %s)"
+                cursor.executemany(query, values)
+            else:
+                query = "INSERT INTO activity_student (id_student, id_activity) VALUES (%s, %s)"
+                cursor.execute(query, (student_ids, id_activity))
+
             connection.commit()
             return True
         except Error as e:
@@ -267,8 +272,18 @@ class Activity:
         finally:
             cursor.close()
 
+    @staticmethod
+    def get_id_student_by_group(connection, id_group):
+        cursor = connection.cursor()
+        try:
+            cursor.execute("SELECT id_aluno FROM student_group where id_grupo = %s", (id_group,))
+            result = cursor.fetchall()
 
-
-
-   
-
+            students = []
+            for row in result:
+                students.append(row[0])
+            return students
+        except Error as e:
+            print(f"Error getting student id from database: {e}")
+        finally:
+            cursor.close()
