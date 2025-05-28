@@ -147,7 +147,7 @@ class Group:
                             "group_id": row[0],
                             "title": row[2],
                             "period": row[3],
-                            "code": row[5]
+                            "code": row[4]
                         }
                         for row in results
                 ]
