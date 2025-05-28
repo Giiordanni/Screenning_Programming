@@ -13,7 +13,8 @@ def db_connection():
             port=os.getenv('DB_PORT'),
             user=os.getenv('DB_USER'),
             password=os.getenv('DB_PASSWORD'),
-            database=os.getenv('DB_DATABASE')
+            database=os.getenv('DB_DATABASE'),
+            ssl_ca=os.getenv('DB_SSL_CA'),
         )
         if connection.is_connected():
             print("Conectado com suceso ao banco de dados")
