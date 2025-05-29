@@ -44,10 +44,9 @@ def add_student_to_group_code():
     if(type_user != "student"):
         return jsonify({"error": "Invalid user type"})
     
-    print(f"ID do aluno: {id_student}")
-    print(f"Código do grupo: {code_group}")
-    print(f"Tipo de usuário: {type_user}")
-    print(f"Dados recebidos: {data}")
+    if code_group is None:
+        return jsonify({"error": "code_to_group parameter is required"}), 400
+    
     response, status_code = add_student_to_group_controller(id_student, code=code_group)
     return jsonify(response, status_code)
 
