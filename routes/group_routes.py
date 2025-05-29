@@ -65,12 +65,16 @@ def get_all_students_group_routes(id_group):
 @jwt_required()
 def delete_student_from_group_routes(groupId):
     current_user_id = get_jwt_identity()
+    type_user = get_jwt()["type"]
+
+    if type_user != "teacher":
+        return jsonify({"error": "Invalid user type"}), 400
+    
     studentId = request.args.get("studentId")
     if studentId is None:
         return jsonify({"error": "studentId parameter is required"}), 400
     
     response, status_code = delete_student_from_group_controller(current_user_id, groupId, studentId)
-    
     return jsonify(response), status_code
 
 @group_app.route("/api/group/<groupId>", methods=["DELETE"])
