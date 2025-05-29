@@ -105,8 +105,8 @@ class Group:
         cursor.execute("SELECT id_grupo FROM group_table WHERE code = %s", (code_group, ))
         id_group = cursor.fetchone()
         cursor.close()
-        return id_group[0]
-
+        return id_group
+    
     @staticmethod
     def add_student_to_group_service(connection, group_id, student_id):
         try:
