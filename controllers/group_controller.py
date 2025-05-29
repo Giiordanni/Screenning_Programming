@@ -75,7 +75,8 @@ def add_student_to_group_controller(student_id, group_id = None, code = None):
         if group_id is None:
             return {"message": "Grupo não encontrado"}, 404
         
-        teacher, students = Group.get_students_from_group_service(connection, group_id)
+        group_id = group_id[0]
+        _, students = Group.get_students_from_group_service(connection, group_id)
         if students is not None:
             for student in students:
                 if str(student["idStudent"]) == str(idstudent):
