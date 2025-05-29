@@ -75,10 +75,8 @@ class Group:
     def delete_student_from_group_service(connection, groupID, studentID):
         try:
             cursor = connection.cursor()
-            connection.start_transaction()
 
             cursor.execute("DELETE FROM student_group WHERE id_grupo = %s AND id_aluno = %s", (groupID, studentID))
-
             cursor.execute("DELETE FROM activity_student WHERE id_student = %s AND id_activity IN (SELECT id_activity FROM activity WHERE id_group = %s)",(studentID, groupID))
 
             connection.commit()
@@ -87,6 +85,7 @@ class Group:
         except Error as e:
             if connection:
                 connection.rollback()
+            return False, f"Erro ao deletar o usuário: {e}"
         finally:
             if cursor:
                 cursor.close()
