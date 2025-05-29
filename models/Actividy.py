@@ -260,7 +260,7 @@ class Activity:
                         "id_activity": row[0],
                         "id_content": row[1],
                         "description": row[2],
-                        status_activity: row[3] if row[3] != None else "Não iniciada",
+                        "status_activity": row[3] if row[3] != None else "Não iniciada",
                         "deadline": row[4],
                         "amount_questions": row[5]
                     })
