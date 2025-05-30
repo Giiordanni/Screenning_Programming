@@ -6,10 +6,7 @@ from models.Group import Group
 from db.bd_mysql import db_connection
 import random
 import string
-
-# from middleware.global_middleware import (
-# verify_email_registered, verify_user
-# )
+from models.Actividy import Activity
 
 def create_group_controller(teacherId, data):
 
@@ -66,8 +63,6 @@ def delete_student_from_group_controller(current_user_id, group_id, student_id):
 
 def add_student_to_group_controller(student_id, group_id = None, code = None):
     connection = db_connection()
-    idstudent = int(student_id)
-    
     try:
         if group_id is None and code is not None:
             group_id = Group.get_group_code(connection, code)
@@ -79,15 +74,24 @@ def add_student_to_group_controller(student_id, group_id = None, code = None):
         _, students = Group.get_students_from_group_service(connection, group_id)
         if students is not None:
             for student in students:
-                if str(student["idStudent"]) == str(idstudent):
+                if str(student["idStudent"]) == str(student_id):
                     return {"message": "Estudante já está no grupo"}, 400
 
         inserted_id = Group.add_student_to_group_service(connection, group_id, student_id)
         
         if inserted_id is not None:
-            return {"message": "Estudante adicionado ao grupo"}, 200
+            activitys = Activity.get_status_activity_all(connection, group_id, student_id)
+            ids_activitys = [activitys["id_activity"] for activitys in activitys]
+
+            response = Activity.add_student_to_activity(connection, int(student_id), ids_activitys)
+            if response:
+                message = "Estudante adicionado ao grupo e atividades atualizadas"
+            else:
+                message = "Estudante adicionado ao grupo, mas falha ao atualizar atividades"
+
+            return {"message": message}, 200
         else:
-            return {"message": "Falha ao adicionar estudante ao grupo"}, 500
+            return {"message": "Falha ao adicionar estudante ao grupo. "}, 500
     
     except Exception as e:
         print(f"Erro ao adicionar estudante ao grupo: {e}")

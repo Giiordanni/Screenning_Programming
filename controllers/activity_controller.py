@@ -26,7 +26,7 @@ def create_activity_controller(data):
 
         if inserted_id is not None:
             student_group_ids = Activity.get_id_student_by_group(connection, id_group)
-            response = Activity.add_student_to_activity(connection, student_group_ids, inserted_id)
+            response = Activity.add_student_to_activity(connection, student_group_ids, int(inserted_id))
             if response:
                 return {"message": 'Atividade criada com sucesso!', "activity_id": inserted_id}, 200
             else:
