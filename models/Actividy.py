@@ -106,17 +106,23 @@ class Activity:
 
 
     @staticmethod
-    def add_student_to_activity(connection, student_ids, id_activity):
+    def add_student_to_activity(connection, student_ids, id_activitys):
         cursor = connection.cursor()
         try:
-            if isinstance(student_ids, list):
-                values = [(id_student, id_activity) for id_student in student_ids]
+            if isinstance(student_ids, list) and isinstance(id_activitys, int):
+                values = [(id_student, id_activitys) for id_student in student_ids]
                 query = "INSERT INTO activity_student (id_student, id_activity) VALUES (%s, %s)"
                 cursor.executemany(query, values)
+            
+            elif isinstance(student_ids, int) and isinstance(id_activitys, list):
+                values = [(student_ids, id_activity) for id_activity in id_activitys]
+                query = "INSERT INTO activity_student (id_student, id_activity) VALUES (%s, %s)"
+                cursor.executemany(query, values)
+
             else:
                 query = "INSERT INTO activity_student (id_student, id_activity) VALUES (%s, %s)"
-                cursor.execute(query, (student_ids, id_activity))
-
+                cursor.execute(query, (student_ids, id_activitys))
+            
             connection.commit()
             return True
         except Error as e:
