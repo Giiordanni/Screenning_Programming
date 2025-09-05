@@ -6,7 +6,7 @@ from models.Student import Student
 from middleware.global_middleware import verify_email_registered, create_token
 
 
-from db.bd_mysql import db_connection
+from db.bd_postgres import db_connection
 
 def login_controller(data):
     connection = db_connection()

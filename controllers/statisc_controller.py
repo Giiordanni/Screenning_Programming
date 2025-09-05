@@ -1,5 +1,5 @@
 from models.Statistic import Statistic
-from db.bd_mysql import db_connection
+from db.bd_postgres import db_connection
 
 
 def calculate_overall_percentagem(correct_answers, total_questions):

@@ -1,5 +1,5 @@
 from models.Student import Student
-from db.bd_mysql import db_connection
+from db.bd_postgres import db_connection
 from werkzeug.utils import secure_filename
 from middleware.global_middleware import (
     verify_id_exists,
@@ -33,6 +33,11 @@ def add_student_controller(data):
             if inserted_id is not None:
                 try:
                     user = Student.get_student_by_id_service(connection, inserted_id)
+                    
+                    if user is None:
+                        print("Usuário não encontrado após inserção")
+                        return {"message": "Erro: usuário não encontrado após criação"}, 500
+                    
                     access_token = create_token(user, 'student')
                 except Exception as e:
                     print(f"Erro ao criar token ou buscar usuário: {e}")

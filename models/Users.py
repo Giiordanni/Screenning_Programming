@@ -22,29 +22,29 @@ class User:
             if user_type == 'aluno':
                 cursor.execute("""
                     INSERT INTO aluno (nameStudent, emailStudent, birthStudent, passwordStudent) 
-                    VALUES (%s, %s, %s, %s)
+                    VALUES (%s, %s, %s, %s) RETURNING id
                 """, (
                     user_data['nameStudent'], 
                     user_data['emailStudent'], 
                     user_data['birthStudent'], 
                     user_data['passwordStudent']
                 ))
+                inserted_id = cursor.fetchone()[0]
                 connection.commit()
-                inserted_id = cursor.lastrowid 
                 return inserted_id
 
             elif user_type == 'professor':
                 cursor.execute("""
                     INSERT INTO professor (nameTeacher, emailTeacher, birthTeacher, passwordTeacher)
-                    VALUES (%s, %s, %s, %s)
+                    VALUES (%s, %s, %s, %s) RETURNING id
                 """, (
                     user_data['nameTeacher'], 
                     user_data['emailTeacher'], 
                     user_data['birthTeacher'], 
                     user_data['passwordTeacher']
                 ))
+                inserted_id = cursor.fetchone()[0]
                 connection.commit()
-                inserted_id = cursor.lastrowid 
                 return inserted_id
 
         except Exception as e:

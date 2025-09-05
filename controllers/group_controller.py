@@ -3,7 +3,7 @@ import bcrypt
 from flask import request
 from db.firebase import *
 from models.Group import Group
-from db.bd_mysql import db_connection
+from db.bd_postgres import db_connection
 import random
 import string
 from models.Actividy import Activity

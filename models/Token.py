@@ -1,6 +1,6 @@
 import os
 from flask import jsonify
-from mysql.connector import Error
+from psycopg2 import Error
 
 secretKey = os.getenv('SECRET_KEY')
 

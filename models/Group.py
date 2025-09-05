@@ -1,4 +1,4 @@
-from mysql.connector import Error
+from psycopg2 import Error
 
 class Group:
     def __init__(self, id_teacher, title, period, code_group):
@@ -11,10 +11,10 @@ class Group:
     def create_group_service(self, connection):
         try:
             cursor = connection.cursor()
-            cursor.execute("INSERT INTO group_table (id_teacher, title, period, code) VALUES (%s, %s, %s, %s)",
+            cursor.execute("INSERT INTO group_table (id_teacher, title, period, code) VALUES (%s, %s, %s, %s) RETURNING id_grupo",
                 (self.id_teacher, self.title, self.period, self.code_group))
+            inserted_id = cursor.fetchone()[0]
             connection.commit()
-            inserted_id = cursor.lastrowid 
             return inserted_id
             
         except Error as e:
@@ -111,11 +111,11 @@ class Group:
         try:
             with connection.cursor() as cursor:
                 cursor.execute(
-                    "INSERT INTO student_group (id_aluno, id_grupo) VALUES (%s, %s)",
+                    "INSERT INTO student_group (id_aluno, id_grupo) VALUES (%s, %s) RETURNING id_aluno",
                     (student_id, group_id)
                 )
+                inserted_id = cursor.fetchone()[0]
                 connection.commit()
-                inserted_id = cursor.lastrowid
                 return inserted_id
         except Exception as e:
             print(f"Error adding student to group: {e}")

@@ -1,7 +1,7 @@
 from flask import abort
 #from models.Student import Student
 from models.Teacher import Teacher
-from db.bd_mysql import db_connection
+from db.bd_postgres import db_connection
 from models.Student import Student
 from models.Users import User
 from models.Group import Group
@@ -45,6 +45,12 @@ def verify_student_is_in_group(connection, user_email, group_id):
     return user
 
 def create_token(user, user_type):
+    if user is None:
+        raise ValueError("Usuário não pode ser None para criar token")
+    
+    if 'id' not in user:
+        raise ValueError("Usuário deve ter campo 'id' para criar token")
+    
     access_token = create_access_token(
         identity=str(user['id']), 
         additional_claims={

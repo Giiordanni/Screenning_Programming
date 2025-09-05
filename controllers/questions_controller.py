@@ -1,5 +1,5 @@
 from decimal import Decimal
-from db.bd_mysql import db_connection
+from db.bd_postgres import db_connection
 from models import Student
 from models.Questions import Questions
 from models.Student import Student

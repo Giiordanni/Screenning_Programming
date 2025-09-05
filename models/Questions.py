@@ -2,15 +2,14 @@ from multiprocessing import connection
 import random
 import numpy as np
 from decimal import Decimal
-import mysql.connector
+import psycopg2
 
 class Questions:
     @staticmethod
     def get_questions_by_level_service(connection, student_level, id_activity):
         try:
-            # Verifica se a conexão está ativa
-            if connection.is_connected():
-                with connection.cursor() as cursor:
+            # PostgreSQL connection doesn't have is_connected method
+            with connection.cursor() as cursor:
                     # Consulta para obter questões e seus parâmetros
                     query = """
                     SELECT q.id_questions, q.skill_question, q.question, q.answer, q.slope, q.threshold, q.asymptote
@@ -55,10 +54,7 @@ class Questions:
                     # Se nenhuma questão for adequada, retorna uma mensagem de erro
                     return {"error": "Nenhuma questão adequada encontrada."}, 200
 
-            else:
-                return {"error": "Conexão com o banco de dados não está ativa."}, 500
-
-        except mysql.connector.Error as err:
+        except psycopg2.Error as err:
             return {"error": f"Erro ao acessar o banco de dados: {str(err)}"}, 500
         finally:
             cursor.close()
