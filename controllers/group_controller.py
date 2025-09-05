@@ -11,7 +11,7 @@ from models.Actividy import Activity
 def create_group_controller(teacherId, data):
 
     id_teacher = teacherId
-    name = data.get("title").lower()
+    name = data.get("title")
     period = data.get("period")
 
     period_verification = period.split(".")[1]
