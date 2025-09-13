@@ -1,5 +1,5 @@
 from models.Teacher import Teacher
-from db.bd_mysql import db_connection
+from db.bd_postgres import db_connection
 from db.firebase import *
 
 from middleware.global_middleware import (
@@ -28,6 +28,9 @@ def add_teacher_controller(data):
         if inserted_id is not None:
             try:
                 user = Teacher.get_teacher_by_id_service(connection, inserted_id)
+                if user is None:
+                    print("Usuário professor não encontrado após inserção")
+                    return {"message": "Erro: usuário não encontrado após criação"}, 500
                 access_token = create_token(user, 'teacher')
                 print(access_token)
             except Exception as e:

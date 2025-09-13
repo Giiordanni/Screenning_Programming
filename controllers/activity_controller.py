@@ -1,7 +1,7 @@
 from flask import request
 from db.firebase import *
 from models.Actividy import Activity
-from db.bd_mysql import db_connection
+from db.bd_postgres import db_connection
 from datetime import datetime
 
 def create_activity_controller(data):

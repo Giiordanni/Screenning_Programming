@@ -4,7 +4,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import get_jwt_identity, jwt_required, get_jwt
 import jwt
 from controllers.student_controller import get_id_by_email_controller
-from db.bd_mysql import db_connection
+from db.bd_postgres import db_connection
 from middleware.global_middleware import verify_student_is_in_group
 from models.Student import Student
 from models.Teacher import Teacher

@@ -1,4 +1,4 @@
-from mysql.connector import Error
+from psycopg2 import Error
 from datetime import datetime
 
 class Activity:
@@ -7,15 +7,15 @@ class Activity:
         cursor = connection.cursor()
         try:
             if amount_questions is None:
-                query = "INSERT INTO activity (id_group, id_content, description, deadline) VALUES (%s, %s, %s, %s)"
+                query = "INSERT INTO activity (id_group, id_content, description, deadline) VALUES (%s, %s, %s, %s) RETURNING id_activity"
                 cursor.execute(query, (id_group, id_content, description, deadline))
             else:
-                query = "INSERT INTO activity (id_group, id_content, description, deadline, amount_questions) VALUES (%s, %s, %s, %s, %s)"
+                query = "INSERT INTO activity (id_group, id_content, description, deadline, amount_questions) VALUES (%s, %s, %s, %s, %s) RETURNING id_activity"
                 cursor.execute(query, (id_group, id_content, description, deadline, amount_questions))
         
+            inserted_id = cursor.fetchone()[0]
             connection.commit()
             print("Activity saved successfully")
-            inserted_id = cursor.lastrowid 
             return inserted_id
             
         except Error as e:

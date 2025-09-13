@@ -3,7 +3,7 @@ import bcrypt
 from flask import request
 from db.firebase import *
 from models.Group import Group
-from db.bd_mysql import db_connection
+from db.bd_postgres import db_connection
 import random
 import string
 from models.Actividy import Activity
@@ -11,7 +11,7 @@ from models.Actividy import Activity
 def create_group_controller(teacherId, data):
 
     id_teacher = teacherId
-    name = data.get("title").lower()
+    name = data.get("title")
     period = data.get("period")
 
     period_verification = period.split(".")[1]
