@@ -19,6 +19,8 @@ import json
 from db.redis import redis_client
 from models.Token import Token
 from models.Users import User
+from models.Email import send_verification_code
+
 
 email_app = Blueprint("email_app", __name__)
 
@@ -28,6 +30,11 @@ def verification_code(email):
         data = request.get_json()
         code = data.get('code')
         email = email.lower().strip()
+        resendCode = data.get('resendCode', False)
+
+        if resendCode == True:
+            send_verification_code(email)
+            return jsonify({'message': 'Código de verificação reenviado com sucesso.'}), 200
 
         if not code:
             return jsonify({'error': 'Código não fornecido'}), 400
